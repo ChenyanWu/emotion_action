@@ -1,5 +1,5 @@
 _base_ = [
-    '../../_base_/schedules/sgd_tsm_50e.py', '../../_base_/default_runtime.py'
+    '../../_base_/schedules/sgd_50e.py', '../../_base_/default_runtime.py'
 ]
 
 # model settings
@@ -110,6 +110,12 @@ data = dict(
         multi_class=True,
         num_classes=26))
 evaluation = dict(interval=1, metrics=['mean_average_precision'])
+
+optimizer = dict(
+    type='SGD',
+    lr=0.005,  # this lr is used for 8 gpus
+    momentum=0.9,
+    weight_decay=0.0001)
 
 # runtime settings
 checkpoint_config = dict(interval=5)
