@@ -109,7 +109,7 @@ data = dict(
         pipeline=test_pipeline,
         multi_class=True,
         num_classes=26))
-evaluation = dict(interval=1, metrics=['mmit_mean_average_precision', 'mean_average_precision'])
+evaluation = dict(interval=1, metrics=['mean_average_precision'])
 
 # runtime settings
 checkpoint_config = dict(interval=5)
