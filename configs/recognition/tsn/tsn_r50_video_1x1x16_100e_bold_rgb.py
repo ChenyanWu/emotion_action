@@ -4,7 +4,7 @@ _base_ = [
 ]
 
 # model settings
-model = dict(cls_head=dict(num_classes=48))
+model = dict(cls_head=dict(num_classes=26))
 
 # dataset settings
 dataset_type = 'VideoDataset'
@@ -86,7 +86,7 @@ data = dict(
         data_prefix=data_root_val,
         pipeline=test_pipeline))
 evaluation = dict(
-    interval=5, metrics=['top_k_accuracy', 'mean_class_accuracy'])
+    interval=1, metrics=['top_k_accuracy', 'mean_class_accuracy'])
 
 optimizer = dict(
     type='SGD',
@@ -96,4 +96,4 @@ optimizer = dict(
     weight_decay=0.0001)
 
 # runtime settings
-work_dir = './work_dirs/tsn_r50_video_1x1x16_100e_diving48_rgb/'
+work_dir = './work_dirs/tsn_r50_video_1x1x16_100e_bold_rgb/'
