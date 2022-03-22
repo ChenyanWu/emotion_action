@@ -2,7 +2,7 @@
 
 CONFIG=$1
 GPUS=$2
-PORT=${PORT:-88888}
+PORT=${PORT:-55555}
 # PORT=88888
 # echo $PORT
 
