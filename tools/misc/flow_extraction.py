@@ -5,6 +5,7 @@ import os.path as osp
 
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 
 def flow_to_img(raw_flow, bound=20.):
@@ -93,26 +94,26 @@ def extract_dense_flow(path,
         frames.append(f)
         flag, f = video.read()
 
-    flow = generate_flow(frames, method=method)
+    # flow = generate_flow(frames, method=method)
 
-    flow_x = [flow_to_img(x[:, :, 0], bound) for x in flow]
-    flow_y = [flow_to_img(x[:, :, 1], bound) for x in flow]
+    # flow_x = [flow_to_img(x[:, :, 0], bound) for x in flow]
+    # flow_y = [flow_to_img(x[:, :, 1], bound) for x in flow]
 
     if not osp.exists(dest):
         os.system('mkdir -p ' + dest)
-    flow_x_names = [
-        osp.join(dest, flow_tmpl.format('x', ind + start_idx))
-        for ind in range(len(flow_x))
-    ]
-    flow_y_names = [
-        osp.join(dest, flow_tmpl.format('y', ind + start_idx))
-        for ind in range(len(flow_y))
-    ]
+    # flow_x_names = [
+    #     osp.join(dest, flow_tmpl.format('x', ind + start_idx))
+    #     for ind in range(len(flow_x))
+    # ]
+    # flow_y_names = [
+    #     osp.join(dest, flow_tmpl.format('y', ind + start_idx))
+    #     for ind in range(len(flow_y))
+    # ]
 
-    num_frames = len(flow)
-    for i in range(num_frames):
-        cv2.imwrite(flow_x_names[i], flow_x[i])
-        cv2.imwrite(flow_y_names[i], flow_y[i])
+    # num_frames = len(flow)
+    # for i in range(num_frames):
+    #     cv2.imwrite(flow_x_names[i], flow_x[i])
+    #     cv2.imwrite(flow_y_names[i], flow_y[i])
 
     if save_rgb:
         img_names = [
@@ -173,11 +174,14 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     if args.input.endswith('.txt'):
+        # read the bold data extract
         lines = open(args.input).readlines()
         lines = [x.strip() for x in lines]
-        videos = [osp.join(args.prefix, x) for x in lines]
-        dests = [osp.join(args.dest, x.split('.')[0]) for x in lines]
-        for video, dest in zip(videos, dests):
+        video_list = [x.split(' ')[0] for x in lines]
+        video_list = list(set(video_list))
+        videos = [osp.join(args.prefix, y) for y in video_list]
+        dests = [osp.join(args.dest, y) for y in video_list]
+        for video, dest in tqdm(zip(videos, dests)):
             extract_dense_flow(video, dest, args.bound, args.save_rgb,
                                args.start_idx, args.rgb_tmpl, args.flow_tmpl,
                                args.method)
