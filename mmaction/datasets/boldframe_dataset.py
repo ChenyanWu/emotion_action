@@ -141,7 +141,7 @@ class BoldframeDataset(BaseDataset):
 
                     # idx for offset and total_frames
                     video_info['offset'] = int(row[2]) + 1
-                    video_info['total_frames'] = int(row[3]) - int(row[2])
+                    video_info['total_frames'] = int(row[3]) - int(row[2]) + 1
 
                     # idx for label[s]
                     emotion_cls = np.zeros(26)
