@@ -119,4 +119,4 @@ optimizer = dict(
 
 # runtime settings
 checkpoint_config = dict(interval=5)
-work_dir = './work_dirs/tsn_r101_1x1x5_50e_bold_rgb/'
+work_dir = './work_dirs/tsn_r101_1x1x5_50e_bold_rgb_raw_frame/'
