@@ -1,12 +1,13 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
+import csv
 
 from .base import BaseDataset
 from .builder import DATASETS
 
 
 @DATASETS.register_module()
-class Lmavideo(BaseDataset):
+class LmavideoDataset(BaseDataset):
     """Video dataset for action recognition.
 
     The dataset loads raw videos and apply specified transforms to return a
@@ -44,7 +45,22 @@ class Lmavideo(BaseDataset):
         if self.ann_file.endswith('.json'):
             return self.load_json_annotations()
         elif self.ann_file.endswith('.csv'):
-            pass
+            video_infos = []
+            with open(self.ann_file, 'r') as csvfile:
+                csvreader = csv.reader(csvfile)
+                for row_id, row in enumerate(csvreader):
+                    if row_id == 0:
+                        pass
+                    else:
+                        filename = row[0]
+                        try:
+                            label = int(row[5])
+                        except:
+                            label = 0
+                        if self.data_prefix is not None:
+                            filename = osp.join(self.data_prefix, filename)
+                        video_infos.append(dict(filename=filename, label=label))
+            return video_infos
         else:
             video_infos = []
             with open(self.ann_file, 'r') as fin:
@@ -60,4 +76,4 @@ class Lmavideo(BaseDataset):
                     if self.data_prefix is not None:
                         filename = osp.join(self.data_prefix, filename)
                     video_infos.append(dict(filename=filename, label=label))
-        return video_infos
+            return video_infos
