@@ -54,10 +54,16 @@ class LmavideoDataset(BaseDataset):
                         pass
                     else:
                         filename = row[0]
-                        try:
-                            label = int(row[5])
-                        except:
+                        # try:
+                        #     label = int(row[5])
+                        # except:
+                        #     label = 0
+                        if row[14] == 'happy':
                             label = 0
+                        elif row[14] == 'sad':
+                            label = 1
+                        else:
+                            label = 2
                         if self.data_prefix is not None:
                             filename = osp.join(self.data_prefix, filename)
                         if os.path.exists(filename):
