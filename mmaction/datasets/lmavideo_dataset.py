@@ -1,4 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import os
 import os.path as osp
 import csv
 
@@ -59,7 +60,11 @@ class LmavideoDataset(BaseDataset):
                             label = 0
                         if self.data_prefix is not None:
                             filename = osp.join(self.data_prefix, filename)
-                        video_infos.append(dict(filename=filename, label=label))
+                        if os.path.exists(filename):
+                            video_infos.append(dict(filename=filename, label=label))
+                        else:
+                            print('*****************Warning!!!', filename)
+                            pass
             return video_infos
         else:
             video_infos = []
