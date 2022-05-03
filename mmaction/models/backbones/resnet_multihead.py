@@ -584,6 +584,7 @@ class ResNetMultiHead(nn.Module):
             return outs[0]
 
         # (extra, main)
+        outs[-1] = outs[0] + outs[-1]
         return tuple(outs)
 
     def _freeze_stages(self):

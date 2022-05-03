@@ -56,7 +56,7 @@ class LmavideoDataset(BaseDataset):
                         filename = row[0]
                         # Get the Lma label
                         try:
-                            meta_label = int(row[5])
+                            meta_label = int(row[3])
                         except:
                             meta_label = 0
                         # try:

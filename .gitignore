@@ -139,3 +139,4 @@ mmaction/tools/*
 !demo/*.ipynb
 mmaction/.mim
 job_*/*
+tools/lma/*.mp4

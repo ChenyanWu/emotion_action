@@ -54,6 +54,7 @@ class Recognizer2D(BaseRecognizer):
 
             loss_cls = self.cls_head.loss(cls_score[-1], gt_labels)
             coef = 1.0
+            # coef = 0.0
             loss_extra = F.cross_entropy(cls_score[0], extra_labels) * coef
             losses.update(loss_cls)
             losses.update({'loss_extra': loss_extra})
@@ -107,7 +108,7 @@ class Recognizer2D(BaseRecognizer):
         cls_score = self.cls_head(x, num_segs)
 
         if isinstance(cls_score, tuple):
-            cls_score = cls_score[0]
+            cls_score = cls_score[-1]
         assert cls_score.size()[0] % batches == 0
         # calculate num_crops automatically
         cls_score = self.average_clip(cls_score,
