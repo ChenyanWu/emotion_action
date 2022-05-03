@@ -54,20 +54,28 @@ class LmavideoDataset(BaseDataset):
                         pass
                     else:
                         filename = row[0]
+                        # Get the Lma label
+                        try:
+                            meta_label = int(row[5])
+                        except:
+                            meta_label = 0
                         # try:
                         #     label = int(row[5])
                         # except:
                         #     label = 0
+                        # Get the label for emotion
                         if row[14] == 'happy':
                             label = 0
                         elif row[14] == 'sad':
                             label = 1
-                        else:
+                        elif row[14] == 'neutral':
                             label = 2
+                        else:
+                            label = 3
                         if self.data_prefix is not None:
                             filename = osp.join(self.data_prefix, filename)
                         if os.path.exists(filename):
-                            video_infos.append(dict(filename=filename, label=label))
+                            video_infos.append(dict(filename=filename, label=label, meta_label=meta_label))
                         else:
                             print('*****************Warning!!!', filename)
                             pass

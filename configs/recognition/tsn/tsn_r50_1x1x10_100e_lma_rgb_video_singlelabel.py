@@ -1,10 +1,38 @@
 _base_ = [
-    '../../_base_/models/tsn_r50.py', '../../_base_/schedules/sgd_100e.py',
+    '../../_base_/schedules/sgd_100e.py',
     '../../_base_/default_runtime.py'
 ]
+# _base_ = [
+#     '../../_base_/models/tsn_r50.py', '../../_base_/schedules/sgd_100e.py',
+#     '../../_base_/default_runtime.py'
+# ]
 
 # model settings
-model = dict(cls_head=dict(num_classes=5))
+# model = dict(cls_head=dict(num_classes=5))
+# model settings
+model = dict(
+    type='Recognizer2D',
+    backbone=dict(
+        type='ResNetMultiHead',
+        pretrained='torchvision://resnet101',
+        depth=101,
+        norm_eval=False),
+    cls_head=dict(
+        type='TSNMultiHead',
+        num_classes=5,
+        in_channels=2048,
+        spatial_type='avg',
+        consensus=dict(type='AvgConsensus', dim=1),
+        dropout_ratio=0.5,
+        init_std=0.01,
+        # use for the multi class
+        # loss_cls=dict(type='BCELossWithLogits', loss_weight=160.0),
+        # multi_class=True,
+        # label_smooth_eps=0
+        ),
+    # train_cfg=None,
+    train_cfg=dict(aux_info=['meta_label']),
+    test_cfg=dict(average_clips=None))
 
 # dataset settings
 dataset_type = 'LmavideoDataset'
@@ -31,8 +59,8 @@ train_pipeline = [
     dict(type='Flip', flip_ratio=0.5),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='FormatShape', input_format='NCHW'),
-    dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
-    dict(type='ToTensor', keys=['imgs', 'label'])
+    dict(type='Collect', keys=['imgs', 'label', 'meta_label'], meta_keys=[]),
+    dict(type='ToTensor', keys=['imgs', 'label', 'meta_label'])
 ]
 val_pipeline = [
     dict(type='DecordInit'),

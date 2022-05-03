@@ -22,6 +22,7 @@ model = dict(
         multi_class=True,
         label_smooth_eps=0),
     train_cfg=None,
+    # train_cfg=dict(aux_info='meta_label'),
     test_cfg=dict(average_clips=None))
 
 # dataset settings

@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 from ..builder import RECOGNIZERS
 from .base import BaseRecognizer
@@ -41,11 +42,22 @@ class Recognizer2D(BaseRecognizer):
             losses.update(loss_aux)
 
         cls_score = self.cls_head(x, num_segs)
-        gt_labels = labels.squeeze()
-        loss_cls = self.cls_head.loss(cls_score, gt_labels, **kwargs)
-        losses.update(loss_cls)
+        if 'meta_label' not in kwargs:
+            gt_labels = labels.squeeze()
+            loss_cls = self.cls_head.loss(cls_score, gt_labels, **kwargs)
+            losses.update(loss_cls)
 
-        return losses
+            return losses
+        else:
+            gt_labels = labels.squeeze()
+            extra_labels = kwargs['meta_label'].squeeze()
+
+            loss_cls = self.cls_head.loss(cls_score[-1], gt_labels)
+            coef = 1.0
+            loss_extra = F.cross_entropy(cls_score[0], extra_labels) * coef
+            losses.update(loss_cls)
+            losses.update({'loss_extra': loss_extra})
+            return losses
 
     def _do_test(self, imgs):
         """Defines the computation performed at every call when evaluation,
@@ -94,6 +106,8 @@ class Recognizer2D(BaseRecognizer):
         # should have cls_head if not extracting features
         cls_score = self.cls_head(x, num_segs)
 
+        if isinstance(cls_score, tuple):
+            cls_score = cls_score[0]
         assert cls_score.size()[0] % batches == 0
         # calculate num_crops automatically
         cls_score = self.average_clip(cls_score,
