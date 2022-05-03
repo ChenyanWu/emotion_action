@@ -57,7 +57,7 @@ class TSNMultiHead(BaseHead):
         else:
             self.dropout = None
         self.fc_cls = nn.Linear(self.in_channels, self.num_classes)
-        self.extra_cls = nn.Linear(self.in_channels, self.num_classes)
+        self.extra_cls = nn.Linear(self.in_channels, 11)
 
     def init_weights(self):
         """Initiate the parameters from scratch."""
