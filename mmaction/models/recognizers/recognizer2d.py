@@ -55,8 +55,8 @@ class Recognizer2D(BaseRecognizer):
             loss_cls = self.cls_head.loss(cls_score[-1], gt_labels)
             coef = 1.0
             # coef = 0.0
-            loss_extra = F.binary_cross_entropy_with_logits(cls_score[0], extra_labels) * coef
-            # loss_extra = F.cross_entropy(cls_score[0], extra_labels) * coef
+            # loss_extra = F.binary_cross_entropy_with_logits(cls_score[0], extra_labels) * coef
+            loss_extra = F.cross_entropy(cls_score[0], extra_labels) * coef
             losses.update(loss_cls)
             losses.update({'loss_extra': loss_extra})
             return losses

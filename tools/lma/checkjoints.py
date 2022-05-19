@@ -19,11 +19,14 @@ print(BOLD_train_list[0])
 #%% An example to extract video
 exp = BOLD_train_list[0]
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
-video_path = os.path.join('/ocean/projects/iri180005p/chenyan/coding/emotion_body/mmaction2/data/BOLD_public/videos', exp[0])
-# start_time, end_time = int(exp[2]) / 25, int(exp[3]) / 25
-start_time, end_time = 0, 5
-ffmpeg_extract_subclip(video_path, start_time, end_time-1, targetname="test.mp4")
-os.system('cp {} {}'.format(video_path, 'raw.mp4'))
+video_path = os.path.join('/ocean/projects/iri180005p/chenyan/coding/emotion_body/mmaction2/data/BOLD_public/videos', exp[0], '0114_0124_0005.mp4')
+# video_path = os.path.join('/ocean/projects/iri180005p/chenyan/coding/emotion_body/mmaction2/data/BOLD_public/videos', exp[0])
+start_time, end_time = int(exp[2]) / 25, int(exp[3]) / 25
+# start_time, end_time = 0, 5
+# ffmpeg_extract_subclip(video_path, start_time, end_time-1, targetname="test.mp4")
+ffmpeg_extract_subclip('raw_process.mp4', start_time, end_time-1, targetname="test.mp4")
+# print(video_path)
+# os.system('cp {} {}'.format(video_path, 'raw.mp4'))
 # %%
 # from moviepy.editor import *
 

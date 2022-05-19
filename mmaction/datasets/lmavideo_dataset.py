@@ -58,7 +58,7 @@ class LmavideoDataset(BaseDataset):
                         filename = row[0]
                         # Get the Lma label
                         try:
-                            meta_label = int(row[3])
+                            meta_label = int(row[12])
                         except:
                             meta_label = 0
                         # try:
@@ -66,14 +66,14 @@ class LmavideoDataset(BaseDataset):
                         # except:
                         #     label = 0
                         # Get the multi label for the LMA
-                        meta_label = torch.zeros(11)
-                        for col_id in range(11):
-                            try:
-                                one_hot = int(row[3+col_id])
-                            except:
-                                one_hot = 0
-                            if one_hot > 0:
-                                meta_label[col_id] = 1
+                        # meta_label = torch.zeros(11)
+                        # for col_id in range(11):
+                        #     try:
+                        #         one_hot = int(row[3+col_id])
+                        #     except:
+                        #         one_hot = 0
+                        #     if one_hot > 0:
+                        #         meta_label[col_id] = 1
                         # Get the label for emotion
                         if row[14] == 'happy':
                             label = 0
