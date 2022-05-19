@@ -1,6 +1,3 @@
-from sklearn import multiclass
-
-
 model = dict(
     type='Recognizer3D',
     backbone=dict(
@@ -25,15 +22,15 @@ model = dict(
         spatial_type='avg',
         dropout_ratio=0.5,
         loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0),
-        # multi_class=True,
-        # label_smooth_eps=0,
+        multi_class=True,
+        label_smooth_eps=0,
         ),
     train_cfg=dict(),
     test_cfg=dict(average_clips='prob'))
 
 dataset_type = 'PoseDataset'
-ann_file_train = 'BOLD_public/annotations/bold.pkl'
-ann_file_val = 'BOLD_public/annotations/bold.pkl'
+ann_file_train = 'data/BOLD_public/annotations/bold.pkl'
+ann_file_val = 'data/BOLD_public/annotations/bold.pkl'
 left_kp = [5, 6, 7, 11, 12, 13, 15, 17]
 right_kp = [2, 3, 4, 8, 9, 10, 14, 16]
 train_pipeline = [
@@ -99,14 +96,14 @@ data = dict(
         ann_file=ann_file_train,
         split='train',
         data_prefix='',
-        # multi_class=True,
+        multi_class=True,
         num_classes=26,
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         ann_file=ann_file_val,
         split='val',
-        # multi_class=True,
+        multi_class=True,
         num_classes=26,
         data_prefix='',
         pipeline=val_pipeline),
@@ -115,7 +112,7 @@ data = dict(
         ann_file=ann_file_val,
         split='val',
         data_prefix='',
-        # multi_class=True,
+        multi_class=True,
         num_classes=26,
         pipeline=test_pipeline))
 # optimizer
