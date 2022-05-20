@@ -10,6 +10,7 @@ import warnings
 from collections import defaultdict
 
 import cv2
+import csv
 import mmcv
 import numpy as np
 
@@ -320,14 +321,17 @@ def ntu_pose_extraction(vid, skip_postproc=False):
 
     return anno
 
+def bold_pose_extraction(frame_folder):
+    det_results = detection_inference(args, frame_folder)
+    pose_results = pose_inference(args, frame_folder, det_results)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Generate Pose Annotation for a single NTURGB-D video')
-    parser.add_argument('video', type=str, help='source video')
+        description='Generate Pose Annotation for Bold dataset')
+    parser.add_argument('annot', type=str, help='annotation file')
     parser.add_argument('output', type=str, help='output pickle name')
     parser.add_argument('--device', type=str, default='cuda:0')
-    parser.add_argument('--skip-postproc', action='store_true')
     args = parser.parse_args()
     return args
 
@@ -335,8 +339,16 @@ def parse_args():
 if __name__ == '__main__':
     global_args = parse_args()
     args.device = global_args.device
-    args.video = global_args.video
+    args.annot = global_args.annot
     args.output = global_args.output
-    args.skip_postproc = global_args.skip_postproc
-    anno = ntu_pose_extraction(args.video, args.skip_postproc)
+
+    dataset_dir = '/ocean/projects/iri180005p/chenyan/dataset/emotion_bold/BOLD_public'
+    # read the annotation file
+    with open(args.annot, 'r+') as annot_f:
+        csv_reader = csv.reader(annot_f)
+        for row in csv_reader:
+            video_name = row[0]
+            # get the extract frames folder path
+            frames_folder = os.path.join(dataset_dir, 'mmextract', video_name)
+            anno = bold_pose_extraction(frames_folder)
     mmcv.dump(anno, args.output)
