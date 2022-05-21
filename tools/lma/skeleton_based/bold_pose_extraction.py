@@ -13,6 +13,7 @@ import cv2
 import csv
 import mmcv
 import numpy as np
+import imagesize
 
 try:
     from mmdet.apis import inference_detector, init_detector
@@ -23,7 +24,12 @@ except ImportError:
     )  # noqa: E501
 
 mmdet_root = '/ocean/projects/iri180005p/chenyan/coding/emotion_body/mmdetection'
+if not os.path.exists(mmdet_root):
+    mmdet_root = '/home/chenyan/coding/det_code_base/mmdetection'
+
 mmpose_root = '/ocean/projects/iri180005p/chenyan/coding/emotion_body/mmpose'
+if not os.path.exists(mmpose_root):
+    mmpose_root = '/home/chenyan/coding/pose_code_base/mmpose'
 
 args = abc.abstractproperty()
 args.det_config = f'{mmdet_root}/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco-person.py'  # noqa: E501
@@ -321,16 +327,23 @@ def ntu_pose_extraction(vid, skip_postproc=False):
 
     return anno
 
-def bold_pose_extraction(frame_folder):
-    det_results = detection_inference(args, frame_folder)
-    pose_results = pose_inference(args, frame_folder, det_results)
+def bold_det_postproc(det_results):
+    det_results = [removedup(x) for x in det_results]
+    return det_results
+
+def bold_pose_extraction(frame_paths):
+    det_results = detection_inference(args, frame_paths)
+    det_results = bold_det_postproc(det_results)
+    pose_results = pose_inference(args, frame_paths, det_results)
+    annot = {}
+    annot['keypoint'] = pose_results[..., :2]
+    annot['keypoint_score'] = pose_results[..., 2]
+    return  annot
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Generate Pose Annotation for Bold dataset')
-    parser.add_argument('annot', type=str, help='annotation file')
-    parser.add_argument('output', type=str, help='output pickle name')
     parser.add_argument('--device', type=str, default='cuda:0')
     args = parser.parse_args()
     return args
@@ -339,16 +352,69 @@ def parse_args():
 if __name__ == '__main__':
     global_args = parse_args()
     args.device = global_args.device
-    args.annot = global_args.annot
-    args.output = global_args.output
 
-    dataset_dir = '/ocean/projects/iri180005p/chenyan/dataset/emotion_bold/BOLD_public'
+    output_path = 'data/BOLD_public/annotations/bold_hrnet.pkl'
+    dataset_dir = 'data/BOLD_public'
+
+    # load the val dataset
+    annot_val_path = 'data/BOLD_public/annotations/val.csv'
+    output = {'split':{'train':[], 'val':[]}, 'annotations':[]}
     # read the annotation file
-    with open(args.annot, 'r+') as annot_f:
+    with open(annot_val_path, 'r+') as annot_f:
         csv_reader = csv.reader(annot_f)
         for row in csv_reader:
             video_name = row[0]
+            output['split']['val'].append(video_name)
             # get the extract frames folder path
             frames_folder = os.path.join(dataset_dir, 'mmextract', video_name)
-            anno = bold_pose_extraction(frames_folder)
-    mmcv.dump(anno, args.output)
+            frames_paths = os.listdir(frames_folder)
+            frames_paths = [os.path.join(frames_folder, name) for name in frames_paths]
+            anno = bold_pose_extraction(frames_paths)
+            anno['frame_dir'] = video_name
+            img_path = os.path.join(frames_folder, 'img_00001.jpg')
+            width, height = imagesize.get(img_path)
+            anno['img_shape'] = (height, width)
+            anno['original_shape'] = (height, width)
+            anno['total_frames'] = len(frames_paths)
+
+            emotion_cls = np.zeros(26)
+            for idx in range(4, 4+26):
+                emotion_cls[idx-4] = float(row[idx])
+            multi_label = np.argwhere(emotion_cls > 0.5)
+            label = []
+            for _label in multi_label:
+                label.append(_label[0])
+            anno['label'] = label
+            output['annotations'].append(anno)
+    
+    # load the train dataset
+    annot_val_path = 'data/BOLD_public/annotations/train.csv'
+    # read the annotation file
+    with open(annot_val_path, 'r+') as annot_f:
+        csv_reader = csv.reader(annot_f)
+        for row in csv_reader:
+            video_name = row[0]
+            output['split']['train'].append(video_name)
+            # get the extract frames folder path
+            frames_folder = os.path.join(dataset_dir, 'mmextract', video_name)
+            frames_paths = os.listdir(frames_folder)
+            frames_paths = [os.path.join(frames_folder, name) for name in frames_paths]
+            anno = bold_pose_extraction(frames_paths)
+            anno['frame_dir'] = video_name
+            img_path = os.path.join(frames_folder, 'img_00001.jpg')
+            width, height = imagesize.get(img_path)
+            anno['img_shape'] = (height, width)
+            anno['original_shape'] = (height, width)
+            anno['total_frames'] = len(frames_paths)
+
+            emotion_cls = np.zeros(26)
+            for idx in range(4, 4+26):
+                emotion_cls[idx-4] = float(row[idx])
+            multi_label = np.argwhere(emotion_cls > 0.5)
+            label = []
+            for _label in multi_label:
+                label.append(_label[0])
+            anno['label'] = label
+            output['annotations'].append(anno)
+
+    mmcv.dump(output, output_path)

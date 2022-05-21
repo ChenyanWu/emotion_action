@@ -22,7 +22,12 @@ except ImportError:
     )  # noqa: E501
 
 mmdet_root = '/ocean/projects/iri180005p/chenyan/coding/emotion_body/mmdetection'
+if not os.path.exists(mmdet_root):
+    mmdet_root = '/home/chenyan/coding/det_code_base/mmdetection'
+
 mmpose_root = '/ocean/projects/iri180005p/chenyan/coding/emotion_body/mmpose'
+if not os.path.exists(mmpose_root):
+    mmpose_root = '/home/chenyan/coding/pose_code_base/mmpose'
 
 args = abc.abstractproperty()
 args.det_config = f'{mmdet_root}/configs/faster_rcnn/faster_rcnn_r50_caffe_fpn_mstrain_1x_coco-person.py'  # noqa: E501
