@@ -23,7 +23,8 @@ with open(val_csv_path, 'r') as csv_file:
 output = {'split':{'train':[], 'val':[]}, 'annotations':[]}
 for val_id, val_annot in enumerate(val_list):
     person_id = int(val_annot[1])
-    output['split']['val'].append(val_annot[0])
+    name_w_personid = val_annot[0] + '_personid{}'.format(person_id)
+    output['split']['val'].append(name_w_personid)
     joint_annot_path = os.path.join(bold_dir, 'joints', val_annot[0][:-4]+'.npy')
     joint_annot = np.load(joint_annot_path)
     start_frame = int(joint_annot[:,0].min())
@@ -40,7 +41,7 @@ for val_id, val_annot in enumerate(val_list):
             pass
     processed_annot['keypoint'] = kps_np
     processed_annot['keypoint_score'] = kps_score
-    processed_annot['frame_dir'] = val_annot[0]
+    processed_annot['frame_dir'] = name_w_personid
     processed_annot['total_frames'] = total_frame
     img_path = os.path.join(bold_dir, 'mmextract', val_annot[0], 'img_00001.jpg')
     width, height = imagesize.get(img_path)
@@ -59,7 +60,8 @@ for val_id, val_annot in enumerate(val_list):
 #%% load the annotation for train.csv
 for val_id, val_annot in enumerate(train_list):
     person_id = int(val_annot[1])
-    output['split']['train'].append(val_annot[0])
+    name_w_personid = val_annot[0] + '_personid{}'.format(person_id)
+    output['split']['train'].append(name_w_personid)
     joint_annot_path = os.path.join(bold_dir, 'joints', val_annot[0][:-4]+'.npy')
     joint_annot = np.load(joint_annot_path)
     start_frame = int(joint_annot[:,0].min())
@@ -76,7 +78,7 @@ for val_id, val_annot in enumerate(train_list):
             pass
     processed_annot['keypoint'] = kps_np
     processed_annot['keypoint_score'] = kps_score
-    processed_annot['frame_dir'] = val_annot[0]
+    processed_annot['frame_dir'] = name_w_personid
     processed_annot['total_frames'] = total_frame
     img_path = os.path.join(bold_dir, 'mmextract', val_annot[0], 'img_00001.jpg')
     width, height = imagesize.get(img_path)
@@ -95,7 +97,7 @@ for val_id, val_annot in enumerate(train_list):
 #%%
 pkl_path = os.path.join(bold_dir, 'annotations', 'bold.pkl')
 with open(pkl_path, 'wb') as f:
-    annot = pickle.dump(output, f, protocol=pickle.HIGHEST_PROTOCOL)
+    annot = pickle.dump(output, f)
 # %%
 openpose_joint_set = ['Nose', 'Neck', 'R_Shoulder', 'R_Elbow', 'R_Wrist', 'L_Shoulder', 'L_Elbow', 'L_Wrist', 'R_Hip', 'R_Knee', 'R_Ankle', 'L_Hip', 'L_Knee', 'L_Ankle', 'R_Eye', 'L_Eye', 'R_Ear', 'L_Ear']
 coco_joint_set = ['Nose', 'L_Eye', 'R_Eye', 'L_Ear', 'R_Ear', 'L_Shoulder', 'R_Shoulder', 'L_Elbow', 'R_Elbow', 'L_Wrist', 'R_Wrist', 'L_Hip', 'R_Hip', 'L_Knee', 'R_Knee', 'L_Ankle', 'R_Ankle']
@@ -104,7 +106,8 @@ openpose2coco = [openpose_joint_set.index(i) for i in coco_joint_set]
 output = {'split':{'train':[], 'val':[]}, 'annotations':[]}
 for val_id, val_annot in enumerate(val_list):
     person_id = int(val_annot[1])
-    output['split']['val'].append(val_annot[0])
+    name_w_personid = val_annot[0] + '_personid{}'.format(person_id)
+    output['split']['val'].append(name_w_personid)
     joint_annot_path = os.path.join(bold_dir, 'joints', val_annot[0][:-4]+'.npy')
     joint_annot = np.load(joint_annot_path)
     start_frame = int(joint_annot[:,0].min())
@@ -121,7 +124,7 @@ for val_id, val_annot in enumerate(val_list):
             pass
     processed_annot['keypoint'] = kps_np
     processed_annot['keypoint_score'] = kps_score
-    processed_annot['frame_dir'] = val_annot[0]
+    processed_annot['frame_dir'] = name_w_personid
     processed_annot['total_frames'] = total_frame
     img_path = os.path.join(bold_dir, 'mmextract', val_annot[0], 'img_00001.jpg')
     width, height = imagesize.get(img_path)
@@ -140,7 +143,8 @@ for val_id, val_annot in enumerate(val_list):
 #%% load the annotation for train.csv
 for val_id, val_annot in enumerate(train_list):
     person_id = int(val_annot[1])
-    output['split']['train'].append(val_annot[0])
+    name_w_personid = val_annot[0] + '_personid{}'.format(person_id)
+    output['split']['train'].append(name_w_personid)
     joint_annot_path = os.path.join(bold_dir, 'joints', val_annot[0][:-4]+'.npy')
     joint_annot = np.load(joint_annot_path)
     start_frame = int(joint_annot[:,0].min())
@@ -157,7 +161,7 @@ for val_id, val_annot in enumerate(train_list):
             pass
     processed_annot['keypoint'] = kps_np
     processed_annot['keypoint_score'] = kps_score
-    processed_annot['frame_dir'] = val_annot[0]
+    processed_annot['frame_dir'] = name_w_personid
     processed_annot['total_frames'] = total_frame
     img_path = os.path.join(bold_dir, 'mmextract', val_annot[0], 'img_00001.jpg')
     width, height = imagesize.get(img_path)
@@ -176,5 +180,5 @@ for val_id, val_annot in enumerate(train_list):
 #%%
 pkl_path = os.path.join(bold_dir, 'annotations', 'bold_cocoJ.pkl')
 with open(pkl_path, 'wb') as f:
-    annot = pickle.dump(output, f, protocol=pickle.HIGHEST_PROTOCOL)
+    annot = pickle.dump(output, f)
 # %%
