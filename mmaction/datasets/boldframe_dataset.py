@@ -168,25 +168,36 @@ class BoldframeDataset(BaseDataset):
                     person_id = int(row[1])
                     joint_path = osp.join(self.data_prefix, '../joints', row[0][:-4] + '.npy')
                     joint_npy = np.load(joint_path)
-                    selected_frame = joint_npy[:, 1] == person_id
-                    joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
-                    joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
-                    x1 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].min()
-                    x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
-                    y1 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].min()
-                    y2 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].max()
-        # if aggregate:
-        #     return np.asarray([[joints[joints[:,:,2] > 1e-7, 0].min(), joints[joints[:,:,2] > 1e-7, 1].min(),
-        #                        joints[joints[:,:,2] > 1e-7, 0].max(), joints[joints[:,:,2] > 1e-7, 1].max()]]
-        #                       * joints.shape[0])
-        # else:
-        #     return np.asarray([[joints[i, joints[i,:,2] > 1e-7, 0].min(), joints[i, joints[i,:,2] > 1e-7, 1].min(),
-        #                         joints[i,joints[i,:,2] > 1e-7, 0].max(), joints[i, joints[i,:,2] > 1e-7, 1].max()]
-        #                        for i in range(joints.shape[0])]).squeeze()
-                    scale = max((x2-x1)/200., (y2-y1)/200.)
-                    bbox = np.array([(x2+x1)/2, (y2+y1)/2, scale, scale])
-                    video_info['crop_bboxes'] = np.tile(bbox, [raw_total_frames, 1])
-
+                    aggregate = False
+                    if aggregate:
+                        selected_frame = joint_npy[:, 1] == person_id
+                        joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
+                        joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
+                        x1 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].min()
+                        x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
+                        y1 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].min()
+                        y2 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].max()
+                        scale = max((x2-x1)/200., (y2-y1)/200.)
+                        bbox = np.array([(x2+x1)/2, (y2+y1)/2, scale, scale])
+                        video_info['crop_bboxes'] = np.tile(bbox, [raw_total_frames, 1])
+                    else:
+                        start_frame_id = int(joint_npy[:,0].min())
+                        selected_frame = joint_npy[:, 1] == person_id
+                        joint_npy = joint_npy[selected_frame] # first two are frame number and entity id (num_frames, 56)
+                        crop_bboxes = np.zeros([raw_total_frames, 4])
+                        for frame_joint in joint_npy:
+                            frame_id = int(frame_joint[0] - start_frame_id)
+                            joint = frame_joint[2:].reshape([18, 3])
+                            x1 = joint[joint[:,2] > 1e-7, 0].min()
+                            x2 = joint[joint[:,2] > 1e-7, 0].max()
+                            y1 = joint[joint[:,2] > 1e-7, 1].min()
+                            y2 = joint[joint[:,2] > 1e-7, 1].max()
+                            crop_bboxes[frame_id, :] = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
+                        scale_w = crop_bboxes[:,2].max()
+                        scale_h = crop_bboxes[:,3].max()
+                        crop_bboxes[:,2] = scale_w
+                        crop_bboxes[:,3] = scale_h
+                        video_info['crop_bboxes'] = crop_bboxes
                     video_infos.append(video_info)
             return video_infos
 
