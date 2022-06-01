@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
+import os
 import os.path as osp
 import csv
 import torch
@@ -140,8 +141,11 @@ class BoldframeDataset(BaseDataset):
                     video_info['frame_dir'] = frame_dir
 
                     # idx for offset and total_frames
-                    video_info['offset'] = int(row[2]) + 1
-                    video_info['total_frames'] = int(row[3]) - int(row[2])
+                    raw_total_frames = len(os.listdir(frame_dir))
+                    video_info['offset'] = int(row[2])
+                    video_info['total_frames'] = int(row[3]) - int(row[2]) + 1
+                    # if use all the frames
+                    # video_info['total_frames'] = len(os.listdir(frame_dir))
 
                     # idx for label[s]
                     emotion_cls = np.zeros(26)
@@ -159,6 +163,29 @@ class BoldframeDataset(BaseDataset):
                         video_info['label'] = label
                     else:
                         raise
+
+                    # compute the bbox for each frame
+                    person_id = int(row[1])
+                    joint_path = osp.join(self.data_prefix, '../joints', row[0][:-4] + '.npy')
+                    joint_npy = np.load(joint_path)
+                    selected_frame = joint_npy[:, 1] == person_id
+                    joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
+                    joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
+                    x1 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].min()
+                    x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
+                    y1 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].min()
+                    y2 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].max()
+        # if aggregate:
+        #     return np.asarray([[joints[joints[:,:,2] > 1e-7, 0].min(), joints[joints[:,:,2] > 1e-7, 1].min(),
+        #                        joints[joints[:,:,2] > 1e-7, 0].max(), joints[joints[:,:,2] > 1e-7, 1].max()]]
+        #                       * joints.shape[0])
+        # else:
+        #     return np.asarray([[joints[i, joints[i,:,2] > 1e-7, 0].min(), joints[i, joints[i,:,2] > 1e-7, 1].min(),
+        #                         joints[i,joints[i,:,2] > 1e-7, 0].max(), joints[i, joints[i,:,2] > 1e-7, 1].max()]
+        #                        for i in range(joints.shape[0])]).squeeze()
+                    bbox = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
+                    video_info['crop_bboxes'] = np.tile(bbox, [raw_total_frames, 1])
+
                     video_infos.append(video_info)
             return video_infos
 

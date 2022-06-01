@@ -9,6 +9,7 @@ import warnings
 import mmcv
 import numpy as np
 import torch
+import cv2
 from mmcv.fileio import FileClient
 from torch.nn.modules.utils import _pair
 
@@ -1339,6 +1340,178 @@ class RawFrameDecode:
                     f'decoding_backend={self.decoding_backend})')
         return repr_str
 
+@PIPELINES.register_module()
+class RawFrameCropDecode:
+    """Load and decode frames with given indices.
+
+    Required keys are "frame_dir", "filename_tmpl" and "frame_inds",
+    added or modified keys are "imgs", "img_shape" and "original_shape".
+
+    Args:
+        io_backend (str): IO backend where frames are stored. Default: 'disk'.
+        decoding_backend (str): Backend used for image decoding.
+            Default: 'cv2'.
+        kwargs (dict, optional): Arguments for FileClient.
+    """
+
+    def __init__(self, io_backend='disk', decoding_backend='cv2', **kwargs):
+        self.io_backend = io_backend
+        self.decoding_backend = decoding_backend
+        self.kwargs = kwargs
+        self.file_client = None
+
+    def get_affine_transform(
+            self, center, scale, rot, output_size,
+            shift=np.array([0, 0], dtype=np.float32), inv=0
+    ):
+        if not isinstance(scale, np.ndarray) and not isinstance(scale, list):
+            print(scale)
+            scale = np.array([scale, scale])
+
+        scale_tmp = scale * 200.0
+        src_w = scale_tmp[0]
+        dst_w = output_size[0]
+        dst_h = output_size[1]
+
+        rot_rad = np.pi * rot / 180
+        src_dir = self.get_dir([0, src_w * -0.5], rot_rad)
+        dst_dir = np.array([0, dst_w * -0.5], np.float32)
+
+        src = np.zeros((3, 2), dtype=np.float32)
+        dst = np.zeros((3, 2), dtype=np.float32)
+        src[0, :] = center + scale_tmp * shift
+        src[1, :] = center + src_dir + scale_tmp * shift
+        dst[0, :] = [dst_w * 0.5, dst_h * 0.5]
+        dst[1, :] = np.array([dst_w * 0.5, dst_h * 0.5]) + dst_dir
+
+        src[2:, :] = self.get_3rd_point(src[0, :], src[1, :])
+        dst[2:, :] = self.get_3rd_point(dst[0, :], dst[1, :])
+
+        if inv:
+            trans = cv2.getAffineTransform(np.float32(dst), np.float32(src))
+        else:
+            trans = cv2.getAffineTransform(np.float32(src), np.float32(dst))
+
+        return trans
+
+    @staticmethod
+    def affine_transform(pt, t):
+        new_pt = np.array([pt[0], pt[1], 1.]).T
+        new_pt = np.dot(t, new_pt)
+        return new_pt[:2]
+
+    @staticmethod
+    def get_3rd_point(a, b):
+        direct = a - b
+        return b + np.array([-direct[1], direct[0]], dtype=np.float32)
+
+    @staticmethod
+    def get_dir(src_point, rot_rad):
+        sn, cs = np.sin(rot_rad), np.cos(rot_rad)
+
+        src_result = [0, 0]
+        src_result[0] = src_point[0] * cs - src_point[1] * sn
+        src_result[1] = src_point[0] * sn + src_point[1] * cs
+
+        return src_result
+
+    def crop(self, img, center, scale, output_size, rot=0):
+        trans = self.get_affine_transform(center, scale, rot, output_size)
+
+        dst_img = cv2.warpAffine(
+            img, trans, (int(output_size[0]), int(output_size[1])),
+            flags=cv2.INTER_LINEAR
+        )
+
+        return dst_img
+    
+    def __call__(self, results):
+        """Perform the ``RawFrameDecode`` to pick frames given indices.
+
+        Args:
+            results (dict): The resulting dict to be modified and passed
+                to the next transform in pipeline.
+        """
+        mmcv.use_backend(self.decoding_backend)
+
+        directory = results['frame_dir']
+        filename_tmpl = results['filename_tmpl']
+        modality = results['modality']
+
+        if self.file_client is None:
+            self.file_client = FileClient(self.io_backend, **self.kwargs)
+
+        imgs = list()
+
+        if results['frame_inds'].ndim != 1:
+            results['frame_inds'] = np.squeeze(results['frame_inds'])
+
+        offset = results.get('offset', 0)
+
+        cache = {}
+
+        assert 'crop_bboxes' in results, "Crop bboxes must exist!"
+        crop_bboxes = results['crop_bboxes']
+        for i, frame_idx in enumerate(results['frame_inds']):
+            # Avoid loading duplicated frames
+            if frame_idx in cache:
+                if modality == 'RGB':
+                    imgs.append(cp.deepcopy(imgs[cache[frame_idx]]))
+                else:
+                    imgs.append(cp.deepcopy(imgs[2 * cache[frame_idx]]))
+                    imgs.append(cp.deepcopy(imgs[2 * cache[frame_idx] + 1]))
+                continue
+            else:
+                cache[frame_idx] = i
+
+            frame_idx += offset
+            if modality == 'RGB':
+                filepath = osp.join(directory, filename_tmpl.format(frame_idx))
+                img_bytes = self.file_client.get(filepath)
+                # Get frame with channel order RGB directly.
+                cur_frame = mmcv.imfrombytes(img_bytes, channel_order='rgb')
+                center, scale = crop_bboxes[frame_idx-1][:2], crop_bboxes[frame_idx-1][2:]
+                crop_frame = self.crop(cur_frame, center, scale, scale*200)
+                imgs.append(crop_frame)
+            elif modality == 'Flow':
+                x_filepath = osp.join(directory,
+                                      filename_tmpl.format('x', frame_idx))
+                y_filepath = osp.join(directory,
+                                      filename_tmpl.format('y', frame_idx))
+                x_img_bytes = self.file_client.get(x_filepath)
+                x_frame = mmcv.imfrombytes(x_img_bytes, flag='grayscale')
+                y_img_bytes = self.file_client.get(y_filepath)
+                y_frame = mmcv.imfrombytes(y_img_bytes, flag='grayscale')
+                center, scale = crop_bboxes[frame_idx-1][:2], crop_bboxes[frame_idx-1][2:]
+                crop_x = self.crop(x_frame, center, scale, scale*200)
+                crop_y = self.crop(y_frame, center, scale, scale*200)
+                imgs.extend([crop_x, crop_y])
+            else:
+                raise NotImplementedError
+
+        results['imgs'] = imgs
+        results['original_shape'] = imgs[0].shape[:2]
+        results['img_shape'] = imgs[0].shape[:2]
+
+        # we resize the gt_bboxes and proposals to their real scale
+        if 'gt_bboxes' in results:
+            h, w = results['img_shape']
+            scale_factor = np.array([w, h, w, h])
+            gt_bboxes = results['gt_bboxes']
+            gt_bboxes = (gt_bboxes * scale_factor).astype(np.float32)
+            results['gt_bboxes'] = gt_bboxes
+            if 'proposals' in results and results['proposals'] is not None:
+                proposals = results['proposals']
+                proposals = (proposals * scale_factor).astype(np.float32)
+                results['proposals'] = proposals
+
+        return results
+
+    def __repr__(self):
+        repr_str = (f'{self.__class__.__name__}('
+                    f'io_backend={self.io_backend}, '
+                    f'decoding_backend={self.decoding_backend})')
+        return repr_str
 
 @PIPELINES.register_module()
 class ArrayDecode:
