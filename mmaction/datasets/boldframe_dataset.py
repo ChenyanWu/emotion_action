@@ -183,7 +183,8 @@ class BoldframeDataset(BaseDataset):
         #     return np.asarray([[joints[i, joints[i,:,2] > 1e-7, 0].min(), joints[i, joints[i,:,2] > 1e-7, 1].min(),
         #                         joints[i,joints[i,:,2] > 1e-7, 0].max(), joints[i, joints[i,:,2] > 1e-7, 1].max()]
         #                        for i in range(joints.shape[0])]).squeeze()
-                    bbox = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
+                    scale = max((x2-x1)/200., (y2-y1)/200.)
+                    bbox = np.array([(x2+x1)/2, (y2+y1)/2, scale, scale])
                     video_info['crop_bboxes'] = np.tile(bbox, [raw_total_frames, 1])
 
                     video_infos.append(video_info)
