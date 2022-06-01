@@ -4,6 +4,7 @@ import os
 import os.path as osp
 
 import cv2
+import csv
 import numpy as np
 from tqdm import tqdm
 
@@ -178,6 +179,20 @@ if __name__ == '__main__':
         lines = open(args.input).readlines()
         lines = [x.strip() for x in lines]
         video_list = [x.split(' ')[0] for x in lines]
+        video_list = list(set(video_list))
+        videos = [osp.join(args.prefix, y) for y in video_list]
+        dests = [osp.join(args.dest, y) for y in video_list]
+        for video, dest in tqdm(zip(videos, dests)):
+            extract_dense_flow(video, dest, args.bound, args.save_rgb,
+                               args.start_idx, args.rgb_tmpl, args.flow_tmpl,
+                               args.method)
+    elif args.input.endswith('.csv'):
+        # read the bold data extract
+        video_list = []
+        with open(args.input, 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            for row in csvreader:
+                video_list.append(row[0])
         video_list = list(set(video_list))
         videos = [osp.join(args.prefix, y) for y in video_list]
         dests = [osp.join(args.dest, y) for y in video_list]
