@@ -168,7 +168,7 @@ class BoldframeDataset(BaseDataset):
                     person_id = int(row[1])
                     joint_path = osp.join(self.data_prefix, '../joints', row[0][:-4] + '.npy')
                     joint_npy = np.load(joint_path)
-                    aggregate = False
+                    aggregate = True
                     if aggregate:
                         selected_frame = joint_npy[:, 1] == person_id
                         joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
@@ -177,8 +177,9 @@ class BoldframeDataset(BaseDataset):
                         x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
                         y1 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].min()
                         y2 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].max()
-                        scale = max((x2-x1)/200., (y2-y1)/200.)
-                        bbox = np.array([(x2+x1)/2, (y2+y1)/2, scale, scale])
+                        # scale = max((x2-x1)/200., (y2-y1)/200.)
+                        # bbox = np.array([(x2+x1)/2, (y2+y1)/2, scale, scale])
+                        bbox = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
                         video_info['crop_bboxes'] = np.tile(bbox, [raw_total_frames, 1])
                     else:
                         start_frame_id = int(joint_npy[:,0].min())
