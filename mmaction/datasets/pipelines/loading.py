@@ -1471,7 +1471,7 @@ class RawFrameCropDecode:
                 # Get frame with channel order RGB directly.
                 cur_frame = mmcv.imfrombytes(img_bytes, channel_order='rgb')
                 center, scale = crop_bboxes[frame_idx-1][:2], crop_bboxes[frame_idx-1][2:]
-                scale = 1.35 * scale
+                scale = 1.2 * scale
                 crop_frame = self.crop(cur_frame, center, scale, scale*200)
                 imgs.append(crop_frame)
             elif modality == 'Flow':
