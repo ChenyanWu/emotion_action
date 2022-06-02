@@ -34,7 +34,7 @@ data_root_val = 'data/BOLD_public/mmextract'
 # ann_file_test = 'data/BOLD_public/annotations/val_frame_list.txt'
 ann_file_train = 'data/BOLD_public/annotations/train.csv'
 ann_file_val = 'data/BOLD_public/annotations/val.csv'
-ann_file_test = 'data/BOLD_public/annotations/val.csv'
+ann_file_test = 'data/BOLD_public/annotations/bold_test_ijcv.csv'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 train_pipeline = [
