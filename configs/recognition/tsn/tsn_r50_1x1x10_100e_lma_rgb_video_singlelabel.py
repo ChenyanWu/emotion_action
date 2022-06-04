@@ -27,7 +27,7 @@ model = dict(
         dropout_ratio=0.0,
         init_std=0.01,
         # use for the multi class
-        # loss_cls=dict(type='BCELossWithLogits', loss_weight=160.0),
+        # loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0),
         # multi_class=True,
         # label_smooth_eps=0
         ),
