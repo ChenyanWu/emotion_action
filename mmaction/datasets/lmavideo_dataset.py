@@ -56,7 +56,8 @@ class LmavideoDataset(BaseDataset):
                         pass
                     else:
                         filename = row[0]
-                        # Get the Lma label
+                        # Get the Lma label 
+                        # 4: arms_to_upper_body
                         try:
                             meta_label = int(row[12])
                         except:
@@ -65,6 +66,7 @@ class LmavideoDataset(BaseDataset):
                         #     label = int(row[5])
                         # except:
                         #     label = 0
+
                         # Get the multi label for the LMA
                         # meta_label = torch.zeros(11)
                         # for col_id in range(11):
@@ -74,21 +76,28 @@ class LmavideoDataset(BaseDataset):
                         #         one_hot = 0
                         #     if one_hot > 0:
                         #         meta_label[col_id] = 1
+
                         # Get the label for emotion
-                        if row[14] == 'happy':
+                        # if row[14] == 'happy':
+                        #     label = 0
+                        # elif row[14] == 'sad':
+                        #     label = 1
+                        # elif row[14] == 'neutral':
+                        #     label = 2
+                        # else:
+                        #     label = 3
+
+                        try:
+                            label = int(row[4]>0)
+                        except:
                             label = 0
-                        elif row[14] == 'sad':
-                            label = 1
-                        elif row[14] == 'neutral':
-                            label = 2
-                        else:
-                            label = 3
+
                         if self.data_prefix is not None:
                             filename = osp.join(self.data_prefix, filename)
                         if os.path.exists(filename):
                             video_infos.append(dict(filename=filename, label=label, meta_label=meta_label))
                         else:
-                            print('*****************Warning!!!', filename)
+                            print('*****************Warning!!!****No Such file', filename)
                             pass
             return video_infos
         else:
