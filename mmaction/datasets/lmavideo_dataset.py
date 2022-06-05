@@ -88,7 +88,7 @@ class LmavideoDataset(BaseDataset):
                         #     label = 3
 
                         try:
-                            label = int(row[4]>0)
+                            label = int(int(row[4])>0)
                         except:
                             label = 0
 

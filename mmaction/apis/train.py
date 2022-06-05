@@ -116,7 +116,8 @@ def train_model(model,
         data_loaders = [
             build_dataloader(ds, **dataloader_setting) for ds in dataset
         ]
-    debug_loader = next(iter(data_loaders[0]))
+    # debug the dataloader
+    # debug_loader = next(iter(data_loaders[0]))
     # put model on gpus
     if distributed:
         find_unused_parameters = cfg.get('find_unused_parameters', False)
