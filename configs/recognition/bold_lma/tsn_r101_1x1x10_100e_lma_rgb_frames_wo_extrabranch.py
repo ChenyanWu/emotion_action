@@ -49,9 +49,12 @@ ann_file_test = 'data/BOLD_public/annotations/LMA_coding_cleaned_val.csv'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 
-set_clip_num = 10
+set_clip_num = 20
+set_clip_len = 3
+set_frame_interval = 3
+
 train_pipeline = [
-    dict(type='SampleFrames', clip_len=1, frame_interval=1, num_clips=set_clip_num),
+    dict(type='SampleFrames', clip_len=set_clip_len, frame_interval=set_frame_interval, num_clips=set_clip_num),
     dict(type='RawFrameCropDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(
@@ -70,8 +73,8 @@ train_pipeline = [
 val_pipeline = [
     dict(
         type='SampleFrames',
-        clip_len=1,
-        frame_interval=1,
+        clip_len=set_clip_len,
+        frame_interval=set_frame_interval,
         num_clips=set_clip_num,
         test_mode=True),
     dict(type='RawFrameCropDecode'),
@@ -85,8 +88,8 @@ val_pipeline = [
 test_pipeline = [
     dict(
         type='SampleFrames',
-        clip_len=1,
-        frame_interval=1,
+        clip_len=set_clip_len,
+        frame_interval=set_frame_interval,
         num_clips=set_clip_num,
         test_mode=True),
     dict(type='RawFrameCropDecode'),
