@@ -68,11 +68,6 @@ class LmaframeDataset(BaseDataset):
                     if self.data_prefix is not None:
                         frame_dir = osp.join(self.data_prefix, frame_dir)
                     video_info['frame_dir'] = frame_dir
-                    if osp.exists(frame_dir):
-                        pass
-                    else:
-                        print('warning do not exists this file {}'.format(frame_dir))
-                        continue
 
                     # idx for offset and total_frames
                     raw_total_frames = len(os.listdir(frame_dir))
