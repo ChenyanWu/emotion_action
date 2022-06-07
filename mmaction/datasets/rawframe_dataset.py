@@ -135,6 +135,11 @@ class RawframeDataset(BaseDataset):
                 if self.data_prefix is not None:
                     frame_dir = osp.join(self.data_prefix, frame_dir)
                 video_info['frame_dir'] = frame_dir
+                if osp.exists(frame_dir):
+                    pass
+                else:
+                    print('warning do not exists this file {}'.format(frame_dir))
+                    continue
                 idx += 1
                 if self.with_offset:
                     # idx for offset and total_frames
