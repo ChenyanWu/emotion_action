@@ -138,18 +138,26 @@ class BoldframeDataset(BaseDataset):
                     frame_dir = row[0]
                     if self.data_prefix is not None:
                         frame_dir = osp.join(self.data_prefix, frame_dir)
-                    video_info['frame_dir'] = frame_dir
+                    if self.modality == 'Flow':
+                        video_info['frame_dir'] = frame_dir[:-4]
+                    else:
+                        video_info['frame_dir'] = frame_dir
 
-                    if osp.exists(frame_dir):
+                    if osp.exists(video_info['frame_dir']):
                         pass
                     else:
-                        print('warning do not exists this file {}'.format(frame_dir))
-                        continue
+                        raise ValueError('{} does not exist with format {}'.format(video_info['frame_dir'], self.modality))
+                        # continue
 
                     # idx for offset and total_frames
-                    raw_total_frames = len(os.listdir(frame_dir))
-                    video_info['offset'] = int(row[2])
-                    video_info['total_frames'] = int(row[3]) - int(row[2]) + 1
+                    if self.modality == 'Flow':
+                        raw_total_frames = len(os.listdir(video_info['frame_dir'])) // 2 + 1
+                        video_info['offset'] = int(row[2])
+                        video_info['total_frames'] = int(row[3]) - int(row[2]) - 1
+                    else:
+                        raw_total_frames = len(os.listdir(video_info['frame_dir']))
+                        video_info['offset'] = int(row[2])
+                        video_info['total_frames'] = int(row[3]) - int(row[2]) + 1
                     # if use all the frames
                     # video_info['total_frames'] = len(os.listdir(frame_dir))
 
@@ -176,6 +184,8 @@ class BoldframeDataset(BaseDataset):
                     joint_npy = np.load(joint_path)
                     # aggregate = True
                     aggregate = False #without aggregate, the performance is better
+                    if self.modality == 'Flow':
+                        aggregate = True
                     if aggregate:
                         selected_frame = joint_npy[:, 1] == person_id
                         joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
@@ -220,7 +230,10 @@ class BoldframeDataset(BaseDataset):
                     frame_dir = line_split[idx]
                     if self.data_prefix is not None:
                         frame_dir = osp.join(self.data_prefix, frame_dir)
-                    video_info['frame_dir'] = frame_dir
+                    if self.modality == 'Flow':
+                        video_info['frame_dir'] = frame_dir[:-4]
+                    else:
+                        video_info['frame_dir'] = frame_dir
                     idx += 1
                     if self.with_offset:
                         # idx for offset and total_frames

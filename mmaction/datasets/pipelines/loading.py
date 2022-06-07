@@ -1484,6 +1484,7 @@ class RawFrameCropDecode:
                 y_img_bytes = self.file_client.get(y_filepath)
                 y_frame = mmcv.imfrombytes(y_img_bytes, flag='grayscale')
                 center, scale = crop_bboxes[frame_idx-1][:2], crop_bboxes[frame_idx-1][2:]
+                scale = 1.35 * scale
                 crop_x = self.crop(x_frame, center, scale, scale*200)
                 crop_y = self.crop(y_frame, center, scale, scale*200)
                 imgs.extend([crop_x, crop_y])
