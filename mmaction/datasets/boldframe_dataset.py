@@ -182,10 +182,13 @@ class BoldframeDataset(BaseDataset):
                     person_id = int(row[1])
                     joint_path = osp.join(self.data_prefix, '../joints', row[0][:-4] + '.npy')
                     joint_npy = np.load(joint_path)
+
+                    if self.modality == 'Flow':
+                        video_infos.append(video_info)
+                        continue
+                        
                     # aggregate = True
                     aggregate = False #without aggregate, the performance is better
-                    if self.modality == 'Flow':
-                        aggregate = True
                     if aggregate:
                         selected_frame = joint_npy[:, 1] == person_id
                         joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id

@@ -2,13 +2,14 @@ _base_ = [
     '../../_base_/schedules/sgd_50e.py', '../../_base_/default_runtime.py'
 ]
 
+set_clip_len = 1
 # model settings
 model = dict(
     type='Recognizer2D',
     backbone=dict(
         type='ResNet',
         pretrained='torchvision://resnet101',
-        in_channels=10, # 'in_channels' should be 2 * clip_len
+        in_channels= 2*set_clip_len, # 'in_channels' should be 2 * clip_len
         depth=101,
         norm_eval=False),
     cls_head=dict(
@@ -38,9 +39,9 @@ ann_file_val = 'data/BOLD_public/annotations/val.csv'
 ann_file_test = 'data/BOLD_public/annotations/bold_test_ijcv.csv'
 img_norm_cfg = dict(mean=[128, 128], std=[128, 128])
 train_pipeline = [
-    dict(type='SampleFrames', clip_len=5, frame_interval=1, num_clips=10),
-    # dict(type='RawFrameDecode'),
-    dict(type='RawFrameCropDecode'),
+    dict(type='SampleFrames', clip_len=set_clip_len, frame_interval=1, num_clips=10),
+    dict(type='RawFrameDecode'),
+    # dict(type='RawFrameCropDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='RandomResizedCrop'),
     dict(type='Resize', scale=(224, 224), keep_ratio=False),
@@ -53,12 +54,12 @@ train_pipeline = [
 val_pipeline = [
     dict(
         type='SampleFrames',
-        clip_len=5,
+        clip_len=set_clip_len,
         frame_interval=1,
         num_clips=10,
         test_mode=True),
-    # dict(type='RawFrameDecode'),
-    dict(type='RawFrameCropDecode'),
+    dict(type='RawFrameDecode'),
+    # dict(type='RawFrameCropDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=224),
     dict(type='Normalize', **img_norm_cfg),
@@ -69,12 +70,12 @@ val_pipeline = [
 test_pipeline = [
     dict(
         type='SampleFrames',
-        clip_len=5,
+        clip_len=set_clip_len,
         frame_interval=1,
         num_clips=10,
         test_mode=True),
-    # dict(type='RawFrameDecode'),
-    dict(type='RawFrameCropDecode'),
+    dict(type='RawFrameDecode'),
+    # dict(type='RawFrameCropDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=256),
     dict(type='Normalize', **img_norm_cfg),
