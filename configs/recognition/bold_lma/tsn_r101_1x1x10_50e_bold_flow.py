@@ -2,7 +2,7 @@ _base_ = [
     '../../_base_/schedules/sgd_50e.py', '../../_base_/default_runtime.py'
 ]
 
-set_clip_len = 1
+set_clip_len = 5
 # model settings
 model = dict(
     type='Recognizer2D',
@@ -119,10 +119,10 @@ evaluation = dict(interval=1, metrics=['mean_average_precision'])
 
 optimizer = dict(
     type='SGD',
-    lr=0.0005,  # this lr is used for 8 gpus
+    lr=0.005,  # this lr is used for 8 gpus
     momentum=0.9,
     weight_decay=0.0001)
 
 # runtime settings
 checkpoint_config = dict(interval=5)
-work_dir = './work_dirs/tsn_r101_1x1x5_50e_bold_rgb_flow/'
+work_dir = './work_dirs/tsn_r101_1x1x5_50e_bold_rgb_flow_lr/'
