@@ -2,7 +2,7 @@
 import csv
 import os
 csv_path = 'new_annot_list.csv'
-update_csv_path = 'update_annot_list.csv'
+update_csv_path = 'update_annot_list_with_KB.csv'
 video_folder = '/ocean/projects/iri180005p/chenyan/dataset/emotion_bold/BOLD_public/target_cma'
 
 new_annot_csv = open(update_csv_path, 'w+', encoding='UTF8')
@@ -19,9 +19,12 @@ with open(csv_path, 'r') as csv_file:
             if size > 1:
                 num_oversize += 1
             row.append('{:.4f}'.format(size))
+            size_kb = os.path.getsize(video_path) / (1024)
+            row.append('{:.1f}'.format(size_kb))
             writer.writerow(row)
         else:
             row.append('size(MB)')
+            row.append('size(KB)')
             writer.writerow(row)
 new_annot_csv.close()
 print(num_oversize)
