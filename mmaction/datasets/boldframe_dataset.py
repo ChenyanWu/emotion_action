@@ -178,14 +178,14 @@ class BoldframeDataset(BaseDataset):
                     else:
                         raise
 
+                    if self.modality == 'Flow':
+                        video_infos.append(video_info)
+                        continue
+
                     # compute the bbox for each frame
                     person_id = int(row[1])
                     joint_path = osp.join(self.data_prefix, '../joints', row[0][:-4] + '.npy')
                     joint_npy = np.load(joint_path)
-
-                    if self.modality == 'Flow':
-                        video_infos.append(video_info)
-                        continue
                         
                     # aggregate = True
                     aggregate = False #without aggregate, the performance is better
