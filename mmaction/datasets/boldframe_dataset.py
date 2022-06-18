@@ -184,8 +184,8 @@ class BoldframeDataset(BaseDataset):
 
                     # compute the bbox for each frame
                     person_id = int(row[1])
-                    # joint_path = osp.join(self.data_prefix, '../joints', row[0][:-4] + '.npy')
-                    joint_path = osp.join(osp.dirname(self.data_prefix), 'joints', row[0][:-4] + '.npy')
+                    # joint_path = osp.join(self.ann_file, '../joints', row[0][:-4] + '.npy')
+                    joint_path = osp.join(osp.dirname(self.ann_file), '../joints', row[0][:-4] + '.npy')
                     joint_npy = np.load(joint_path)
                         
                     # aggregate = True
