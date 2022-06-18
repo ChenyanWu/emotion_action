@@ -178,9 +178,9 @@ class BoldframeDataset(BaseDataset):
                     else:
                         raise
 
-                    if self.modality == 'Flow':
-                        video_infos.append(video_info)
-                        continue
+                    # if self.modality == 'Flow':
+                    #     video_infos.append(video_info)
+                    #     continue
 
                     # compute the bbox for each frame
                     person_id = int(row[1])
