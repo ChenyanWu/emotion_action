@@ -179,6 +179,7 @@ class BoldframeDataset(BaseDataset):
                         raise
 
                     # use crop human or not for the flow input
+                    # without crop human is better
                     if self.modality == 'Flow':
                         video_infos.append(video_info)
                         continue

@@ -122,6 +122,7 @@ optimizer = dict(
     lr=0.005,  # this lr is used for 8 gpus
     momentum=0.9,
     weight_decay=0.0001)
+lr_config = dict(policy='step', step=[70])
 
 # runtime settings
 checkpoint_config = dict(interval=5)
