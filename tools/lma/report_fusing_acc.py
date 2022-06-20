@@ -2,6 +2,8 @@
 import argparse
 
 from mmcv import load
+import csv
+import numpy as np
 from scipy.special import softmax
 
 from mmaction.core.evaluation import (get_weighted_score, mean_class_accuracy,
@@ -42,8 +44,16 @@ def main():
         score_list = [apply_softmax(scores) for scores in score_list]
 
     weighted_scores = get_weighted_score(score_list, args.coefficients)
-    data = open(args.datalist).readlines()
-    labels = [int(x.strip().split()[-1]) for x in data]
+    csvfile = open(args.datalist)
+    csvreader = csv.reader(csvfile)
+
+    labels = []
+    for row in csvreader:
+        emotion_cls = np.zeros(26)
+        for idx in range(4, 4+26):
+            emotion_cls[idx-4] = float(row[idx])
+        emotion_cls = (emotion_cls > 0.5).astype(np.int16)
+        labels.append(emotion_cls)
 
     mAP = mean_average_precision(weighted_scores, labels)
     mAR = multi_class_AUC(weighted_scores, labels)
