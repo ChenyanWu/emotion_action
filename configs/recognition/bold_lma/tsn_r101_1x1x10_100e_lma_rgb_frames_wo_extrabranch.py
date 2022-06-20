@@ -50,8 +50,11 @@ img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 
 set_clip_num = 20
-set_clip_len = 3
-set_frame_interval = 3
+# set_clip_num = 40
+set_clip_len = 1
+# set_clip_len = 3
+set_frame_interval = 1
+# set_frame_interval = 3
 
 train_pipeline = [
     dict(type='SampleFrames', clip_len=set_clip_len, frame_interval=set_frame_interval, num_clips=set_clip_num),
