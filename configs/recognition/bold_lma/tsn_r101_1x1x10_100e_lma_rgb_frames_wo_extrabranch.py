@@ -133,4 +133,4 @@ optimizer = dict(
     weight_decay=0.0001)
 
 # runtime settings
-work_dir = './work_dirs/tsn_r101_frame_1x1x10_100e_lma_rgb/'
+work_dir = './work_dirs/lma_rgb_tsn_r101_frame_1x1x10_100e/'
