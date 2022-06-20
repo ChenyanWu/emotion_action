@@ -55,6 +55,7 @@ set_clip_len = 1
 # set_clip_len = 3
 set_frame_interval = 1
 # set_frame_interval = 3
+set_lma_annot_idx = 4
 
 train_pipeline = [
     dict(type='SampleFrames', clip_len=set_clip_len, frame_interval=set_frame_interval, num_clips=set_clip_num),
@@ -111,17 +112,23 @@ data = dict(
         type=dataset_type,
         ann_file=ann_file_train,
         data_prefix=data_root,
-        pipeline=train_pipeline),
+        pipeline=train_pipeline,
+        lma_annot_idx=set_lma_annot_idx,
+        ),
     val=dict(
         type=dataset_type,
         ann_file=ann_file_val,
         data_prefix=data_root_val,
-        pipeline=val_pipeline),
+        pipeline=val_pipeline,
+        lma_annot_idx=set_lma_annot_idx,
+        ),
     test=dict(
         type=dataset_type,
         ann_file=ann_file_test,
         data_prefix=data_root_val,
-        pipeline=test_pipeline))
+        pipeline=test_pipeline,
+        lma_annot_idx=set_lma_annot_idx,
+        ))
 evaluation = dict(
     interval=1, metrics=['top_k_accuracy', 'mean_class_accuracy'])
 
@@ -133,4 +140,6 @@ optimizer = dict(
     weight_decay=0.0001)
 
 # runtime settings
+checkpoint_config = dict(interval=10)
 work_dir = './work_dirs/lma_rgb_tsn_r101_frame_1x1x10_100e/'
+total_epochs = 50

@@ -28,7 +28,9 @@ class LmaframeDataset(BaseDataset):
                  sample_by_class=False,
                  power=0.,
                  dynamic_length=False,
+                 lma_annot_idx=4,
                  **kwargs):
+        self.lma_annot_idx = lma_annot_idx
         self.filename_tmpl = filename_tmpl
         self.with_offset = with_offset
         super().__init__(
@@ -79,8 +81,9 @@ class LmaframeDataset(BaseDataset):
                     video_info['total_frames'] = raw_total_frames
 
                     # get the lma label
+                    lma_annot_idx = self.lma_annot_idx
                     try:
-                        label = int(int(row[4])>0)
+                        label = int(int(row[lma_annot_idx])>0)
                     except:
                         label = 0
                     # get the meta label
