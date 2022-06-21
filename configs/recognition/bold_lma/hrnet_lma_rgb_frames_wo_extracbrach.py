@@ -41,6 +41,7 @@ model = dict(
                 block='BASIC',
                 num_blocks=(4, 4, 4, 4),
                 num_channels=(32, 64, 128, 256))),
+        frozen_stages=4,
         ),
     cls_head=dict(
         type='TSNHead',
