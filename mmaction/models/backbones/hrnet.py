@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
 
+import torch
 import torch.nn as nn
 from mmcv.cnn import (build_conv_layer, build_norm_layer, constant_init,
                       normal_init)
@@ -380,6 +381,11 @@ class HRNet(nn.Module):
             num_channels,
             multiscale_output=self.stage4_cfg.get('multiscale_output', False))
 
+        # head
+        self.head_layer1 = self._make_layer(BasicBlock, 96, 128, 2, stride=2)
+        self.head_layer2 = self._make_layer(BasicBlock, 128, 256, 2, stride=2)
+        self.head_layer3 = self._make_layer(BasicBlock, 256, 512, 2, stride=2)
+
         self._freeze_stages()
 
     @property
@@ -577,6 +583,7 @@ class HRNet(nn.Module):
             else:
                 x_list.append(x)
         y_list = self.stage2(x_list)
+        feature_map_2 = y_list[0]
 
         x_list = []
         for i in range(self.stage3_cfg['num_branches']):
@@ -585,6 +592,7 @@ class HRNet(nn.Module):
             else:
                 x_list.append(y_list[i])
         y_list = self.stage3(x_list)
+        feature_map_3 = y_list[0]
 
         x_list = []
         for i in range(self.stage4_cfg['num_branches']):
@@ -593,8 +601,13 @@ class HRNet(nn.Module):
             else:
                 x_list.append(y_list[i])
         y_list = self.stage4(x_list)
+        feature_map_4 = y_list[0]
 
-        return y_list[0]
+        x_cat = torch.cat([feature_map_2, feature_map_3, feature_map_4], 1)
+        y = self.head_layer1(x_cat)
+        y = self.head_layer2(y)
+        y = self.head_layer3(y)
+        return y
 
     def train(self, mode=True):
         """Convert the model into training mode."""
