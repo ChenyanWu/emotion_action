@@ -58,7 +58,7 @@ model = dict(
         # multi_class=True,
         # label_smooth_eps=0
         # use for the single class
-        loss_cls=dict(type='CrossEntropyLoss', loss_weight=1.0, class_weight=[1.,3.0]),
+        loss_cls=dict(type='CrossEntropyLoss', loss_weight=1.0, class_weight=[1.,10.0]),
         ),
     train_cfg=None,
     # train_cfg=dict(aux_info=['meta_label']),
