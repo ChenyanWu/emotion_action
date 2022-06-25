@@ -85,7 +85,8 @@ set_lma_annot_idx = 4
 
 train_pipeline = [
     dict(type='SampleFrames', clip_len=set_clip_len, frame_interval=set_frame_interval, num_clips=set_clip_num),
-    dict(type='RawFrameCropDecode'),
+    # dict(type='RawFrameCropDecode'),
+    dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(
         type='MultiScaleCrop',
@@ -107,7 +108,8 @@ val_pipeline = [
         frame_interval=set_frame_interval,
         num_clips=set_clip_num,
         test_mode=True),
-    dict(type='RawFrameCropDecode'),
+    # dict(type='RawFrameCropDecode'),
+    dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=224),
     dict(type='Normalize', **img_norm_cfg),
@@ -122,7 +124,8 @@ test_pipeline = [
         frame_interval=set_frame_interval,
         num_clips=set_clip_num,
         test_mode=True),
-    dict(type='RawFrameCropDecode'),
+    # dict(type='RawFrameCropDecode'),
+    dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='CenterCrop', crop_size=224),
     dict(type='Normalize', **img_norm_cfg),
