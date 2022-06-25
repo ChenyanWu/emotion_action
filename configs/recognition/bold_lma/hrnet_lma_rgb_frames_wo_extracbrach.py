@@ -41,7 +41,7 @@ model = dict(
                 block='BASIC',
                 num_blocks=(4, 4, 4, 4),
                 num_channels=(32, 64, 128, 256))),
-        frozen_stages=4,
+        frozen_stages=-1,
         ),
     cls_head=dict(
         type='TSNHead',
@@ -74,7 +74,7 @@ ann_file_test = 'data/BOLD_public/annotations/LMA_coding_cleaned_val.csv'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 
-set_clip_num = 10
+set_clip_num = 20
 # set_clip_num = 40
 set_clip_len = 1
 # set_clip_len = 3
@@ -176,9 +176,9 @@ lr_config = dict(
     # warmup='linear',
     # warmup_iters=500,
     # warmup_ratio=0.001,
-    step=[170, 200])
+    step=[60, 80])
 
 # runtime settings
 checkpoint_config = dict(interval=10)
 work_dir = './work_dirs/hrnet_lma_rgb/'
-total_epochs = 50
+total_epochs = 100
