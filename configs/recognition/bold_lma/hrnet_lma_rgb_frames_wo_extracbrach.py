@@ -15,8 +15,8 @@ model = dict(
     backbone=dict(
         type='HRNet',
         in_channels=3,
-        # pretrained='https://download.openmmlab.com/mmpose/top_down/hrnet/hrnet_w32_coco_256x192-c78dce93_20200708.pth',
-        pretrained='https://download.openmmlab.com/mmpose/pretrain_models/hrnet_w32-36af842e.pth',
+        pretrained='https://download.openmmlab.com/mmpose/top_down/hrnet/hrnet_w32_coco_256x192-c78dce93_20200708.pth',
+        # pretrained='https://download.openmmlab.com/mmpose/pretrain_models/hrnet_w32-36af842e.pth',
         extra=dict(
             stage1=dict(
                 num_modules=1,
@@ -51,7 +51,8 @@ model = dict(
         spatial_type='avg',
         consensus=dict(type='AvgConsensus', dim=1),
         # dropout_ratio=0.5,
-        dropout_ratio=0.3,
+        # dropout_ratio=0.3,
+        dropout_ratio=0.0,
         init_std=0.01,
         # use for the multi class
         # loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0),
