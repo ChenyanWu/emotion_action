@@ -1,5 +1,4 @@
 _base_ = [
-    '../../_base_/schedules/sgd_100e.py',
     '../../_base_/default_runtime.py'
 ]
 # _base_ = [
@@ -158,12 +157,25 @@ data = dict(
 evaluation = dict(
     interval=1, metrics=['top_k_accuracy', 'mean_class_accuracy'])
 
+# optimizer = dict(
+#     type='SGD',
+#     lr=0.001, # this lr is used for 1 gpus
+#     # lr=0.00125,  # this lr is used for 8 gpus
+#     momentum=0.9,
+#     weight_decay=0.0001)
+
 optimizer = dict(
-    type='SGD',
-    lr=0.001, # this lr is used for 1 gpus
-    # lr=0.00125,  # this lr is used for 8 gpus
-    momentum=0.9,
-    weight_decay=0.0001)
+    type='Adam',
+    lr=5e-4,
+)
+optimizer_config = dict(grad_clip=None)
+# learning policy
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.001,
+    step=[170, 200])
 
 # runtime settings
 checkpoint_config = dict(interval=10)

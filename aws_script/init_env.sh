@@ -10,6 +10,8 @@ mkdir annotations && cd annotations
 scp chenyan@data.bridges2.psc.edu:/ocean/projects/iri180005p/chenyan/dataset/emotion_bold/BOLD_public/annotations/*.csv ./
 cd ..
 
+scp -r chenyan@data.bridges2.psc.edu:/ocean/projects/iri180005p/chenyan/dataset/emotion_bold/BOLD_public/joints ./
+
 # config environment from scratch (using Amazon Linux Pytorch)
 conda activate pytorch_p39
 pip install git+https://github.com/open-mmlab/mim.git
