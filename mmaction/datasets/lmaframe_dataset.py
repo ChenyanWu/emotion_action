@@ -119,10 +119,11 @@ class LmaframeDataset(BaseDataset):
                     # video_info['crop_bboxes'] = crop_bboxes
 
                     # use the aggregate bbox
+                    print(joint_npy, person_id)
                     selected_frame = joint_npy[:, 1] == person_id
                     joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
                     joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
-                    print(joint_npy)
+                    print(joint_npy, person_id)
                     x1 = joint_npy[:,:, 0].min()
                     x2 = joint_npy[:,:, 0].max()
                     y1 = joint_npy[:,:, 1].min()
