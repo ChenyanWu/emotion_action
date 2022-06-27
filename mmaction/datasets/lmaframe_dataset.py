@@ -129,15 +129,13 @@ class LmaframeDataset(BaseDataset):
                     joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
                     # print(joint_npy, person_id)
                     joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
-                    
-                    x1 = joint_npy[:,:, 0].min()
-                    x2 = joint_npy[:,:, 0].max()
-                    y1 = joint_npy[:,:, 1].min()
-                    y2 = joint_npy[:,:, 1].max()
-                    # x1 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].min()
-                    # x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
-                    # y1 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].min()
-                    # y2 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].max()
+                    try:
+                        x1 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].min()
+                    except:
+                        print(joint_npy, person_id, frame_dir)
+                    x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
+                    y1 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].min()
+                    y2 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].max()
                     # scale = max((x2-x1)/200., (y2-y1)/200.)
                     # bbox = np.array([(x2+x1)/2, (y2+y1)/2, scale, scale])
                     bbox = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
