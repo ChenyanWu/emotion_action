@@ -100,46 +100,46 @@ class LmaframeDataset(BaseDataset):
                     joint_npy = np.load(joint_path)
                     
                     # use the unaggregate bbox
-                    # if joint_npy[:, 1].max() < person_id:
-                    #     person_id = joint_npy[:, 1].max()
-                    # start_frame_id = int(joint_npy[:,0].min())
-                    # selected_frame = joint_npy[:, 1] == person_id
-                    # joint_npy = joint_npy[selected_frame] # first two are frame number and entity id (num_frames, 56)
-                    # crop_bboxes = np.zeros([raw_total_frames, 4])
-                    # for frame_joint in joint_npy:
-                    #     frame_id = int(frame_joint[0] - start_frame_id)
-                    #     joint = frame_joint[2:].reshape([18, 3])
-                    #     x1 = joint[joint[:,2] > 1e-7, 0].min()
-                    #     x2 = joint[joint[:,2] > 1e-7, 0].max()
-                    #     y1 = joint[joint[:,2] > 1e-7, 1].min()
-                    #     y2 = joint[joint[:,2] > 1e-7, 1].max()
-                    #     crop_bboxes[frame_id, :] = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
-                    # scale_w = crop_bboxes[:,2].max()
-                    # scale_h = crop_bboxes[:,3].max()
-                    # crop_bboxes[:,2] = scale_w
-                    # crop_bboxes[:,3] = scale_h
-                    # video_info['crop_bboxes'] = crop_bboxes
-
-                    # use the aggregate bbox
-                    # print(joint_npy, person_id)
                     if joint_npy[:, 1].max() < person_id:
                         person_id = joint_npy[:, 1].max()
+                    start_frame_id = int(joint_npy[:,0].min())
                     selected_frame = joint_npy[:, 1] == person_id
-                    # print(joint_npy[:, 1], frame_dir)
-                    joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
-                    # print(joint_npy, person_id)
-                    joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
-                    try:
-                        x1 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].min()
-                    except:
-                        print(joint_npy, person_id, frame_dir)
-                    x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
-                    y1 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].min()
-                    y2 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].max()
-                    # scale = max((x2-x1)/200., (y2-y1)/200.)
-                    # bbox = np.array([(x2+x1)/2, (y2+y1)/2, scale, scale])
-                    bbox = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
-                    video_info['crop_bboxes'] = np.tile(bbox, [raw_total_frames, 1])
+                    joint_npy = joint_npy[selected_frame] # first two are frame number and entity id (num_frames, 56)
+                    crop_bboxes = np.zeros([raw_total_frames, 4])
+                    for frame_joint in joint_npy:
+                        frame_id = int(frame_joint[0] - start_frame_id)
+                        joint = frame_joint[2:].reshape([18, 3])
+                        x1 = joint[joint[:,2] > 1e-7, 0].min()
+                        x2 = joint[joint[:,2] > 1e-7, 0].max()
+                        y1 = joint[joint[:,2] > 1e-7, 1].min()
+                        y2 = joint[joint[:,2] > 1e-7, 1].max()
+                        crop_bboxes[frame_id, :] = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
+                    scale_w = crop_bboxes[:,2].max()
+                    scale_h = crop_bboxes[:,3].max()
+                    crop_bboxes[:,2] = scale_w
+                    crop_bboxes[:,3] = scale_h
+                    video_info['crop_bboxes'] = crop_bboxes
+
+                    # use the aggregate bbox
+                    # # print(joint_npy, person_id)
+                    # if joint_npy[:, 1].max() < person_id:
+                    #     person_id = joint_npy[:, 1].max()
+                    # selected_frame = joint_npy[:, 1] == person_id
+                    # # print(joint_npy[:, 1], frame_dir)
+                    # joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
+                    # # print(joint_npy, person_id)
+                    # joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
+                    # try:
+                    #     x1 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].min()
+                    # except:
+                    #     print(joint_npy, person_id, frame_dir)
+                    # x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
+                    # y1 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].min()
+                    # y2 = joint_npy[joint_npy[:,:,2] > 1e-7, 1].max()
+                    # # scale = max((x2-x1)/200., (y2-y1)/200.)
+                    # # bbox = np.array([(x2+x1)/2, (y2+y1)/2, scale, scale])
+                    # bbox = np.array([(x2+x1)/2, (y2+y1)/2, (x2-x1)/200., (y2-y1)/200.])
+                    # video_info['crop_bboxes'] = np.tile(bbox, [raw_total_frames, 1])
 
                     video_infos.append(video_info)
 
