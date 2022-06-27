@@ -121,7 +121,7 @@ class LmaframeDataset(BaseDataset):
                     # use the aggregate bbox
                     print(joint_npy, person_id)
                     selected_frame = joint_npy[:, 1] == person_id
-                    print(joint_npy[:, 1])
+                    print(joint_npy[:, 1], frame_dir)
                     joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
                     print(joint_npy, person_id)
                     joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
