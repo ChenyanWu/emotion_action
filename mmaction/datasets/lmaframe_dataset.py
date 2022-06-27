@@ -101,7 +101,7 @@ class LmaframeDataset(BaseDataset):
                     
                     # use the unaggregate bbox
                     # if joint_npy[:, 1].max() < person_id:
-                    #     person_id = person_id -1
+                    #     person_id = joint_npy[:, 1].max()
                     # start_frame_id = int(joint_npy[:,0].min())
                     # selected_frame = joint_npy[:, 1] == person_id
                     # joint_npy = joint_npy[selected_frame] # first two are frame number and entity id (num_frames, 56)
@@ -123,7 +123,7 @@ class LmaframeDataset(BaseDataset):
                     # use the aggregate bbox
                     # print(joint_npy, person_id)
                     if joint_npy[:, 1].max() < person_id:
-                        person_id = person_id -1
+                        person_id = joint_npy[:, 1].max()
                     selected_frame = joint_npy[:, 1] == person_id
                     # print(joint_npy[:, 1], frame_dir)
                     joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
