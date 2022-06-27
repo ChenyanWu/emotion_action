@@ -101,8 +101,9 @@ class LmaframeDataset(BaseDataset):
                     
                     start_frame_id = int(joint_npy[:,0].min())
                     selected_frame = joint_npy[:, 1] == person_id
-                    joint_npy = joint_npy[selected_frame] # first two are frame number and entity id (num_frames, 56)
                     # use the unaggregate bbox
+                    # joint_npy = joint_npy[selected_frame] # first two are frame number and entity id (num_frames, 56)
+                    
                     # crop_bboxes = np.zeros([raw_total_frames, 4])
                     # for frame_joint in joint_npy:
                     #     frame_id = int(frame_joint[0] - start_frame_id)
@@ -119,6 +120,7 @@ class LmaframeDataset(BaseDataset):
                     # video_info['crop_bboxes'] = crop_bboxes
 
                     # use the aggregate bbox
+                    joint_npy = joint_npy[selected_frame, 2:] # first two are frame number and entity id
                     joint_npy = joint_npy.reshape(joint_npy.shape[0], 18, 3)
                     x1 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].min()
                     x2 = joint_npy[joint_npy[:,:,2] > 1e-7, 0].max()
