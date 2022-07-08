@@ -49,7 +49,7 @@ ann_file_test = 'data/BOLD_public/annotations/LMA_coding_cleaned_val.csv'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 
-set_clip_num = 20
+set_clip_num = 10
 # set_clip_num = 40
 set_clip_len = 1
 # set_clip_len = 3
