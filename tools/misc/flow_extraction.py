@@ -88,6 +88,7 @@ def extract_dense_flow(path,
     """
 
     frames = []
+    print(path)
     assert osp.exists(path)
     video = cv2.VideoCapture(path)
     flag, f = video.read()
@@ -192,7 +193,8 @@ if __name__ == '__main__':
         with open(args.input, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             for row in csvreader:
-                video_list.append(row[0])
+                if row[0] != 'vidID':
+                    video_list.append(row[0])
         video_list = list(set(video_list))
         videos = [osp.join(args.prefix, y) for y in video_list]
         dests = [osp.join(args.dest, y) for y in video_list]
