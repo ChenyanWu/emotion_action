@@ -141,5 +141,5 @@ optimizer = dict(
 
 # runtime settings
 checkpoint_config = dict(interval=10)
-work_dir = './work_dirs/lma_rgb_tsn_r101_frame_1x1x10_100e/'
+work_dir = './work_dirs/lma_predict/tsn_lma_rgb_idx_4/'
 total_epochs = 50
