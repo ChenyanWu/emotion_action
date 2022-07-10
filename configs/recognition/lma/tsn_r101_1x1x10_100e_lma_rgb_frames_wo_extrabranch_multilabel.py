@@ -1,4 +1,5 @@
 _base_ = [
+    '../../_base_/schedules/sgd_100e.py',
     '../../_base_/default_runtime.py'
 ]
 # _base_ = [
@@ -12,61 +13,33 @@ _base_ = [
 model = dict(
     type='Recognizer2D',
     backbone=dict(
-        type='HRNet',
-        in_channels=3,
-        pretrained='https://download.openmmlab.com/mmpose/top_down/hrnet/hrnet_w32_coco_256x192-c78dce93_20200708.pth',
-        # pretrained='https://download.openmmlab.com/mmpose/pretrain_models/hrnet_w32-36af842e.pth',
-        extra=dict(
-            stage1=dict(
-                num_modules=1,
-                num_branches=1,
-                block='BOTTLENECK',
-                num_blocks=(4, ),
-                num_channels=(64, )),
-            stage2=dict(
-                num_modules=1,
-                num_branches=2,
-                block='BASIC',
-                num_blocks=(4, 4),
-                num_channels=(32, 64)),
-            stage3=dict(
-                num_modules=4,
-                num_branches=3,
-                block='BASIC',
-                num_blocks=(4, 4, 4),
-                num_channels=(32, 64, 128)),
-            stage4=dict(
-                num_modules=3,
-                num_branches=4,
-                block='BASIC',
-                num_blocks=(4, 4, 4, 4),
-                num_channels=(32, 64, 128, 256))),
-        frozen_stages=4,
-        # frozen_stages=-1,
-        ),
+        # type='ResNetMultiHead',
+        type='ResNet',
+        pretrained='torchvision://resnet101',
+        depth=101,
+        norm_eval=False),
     cls_head=dict(
+        # type='TSNMultiHead',
         type='TSNHead',
-        num_classes=2,
-        in_channels=512,
+        num_classes=11,
+        in_channels=2048,
         spatial_type='avg',
         consensus=dict(type='AvgConsensus', dim=1),
         # dropout_ratio=0.5,
         dropout_ratio=0.3,
-        # dropout_ratio=0.0,
         init_std=0.01,
         # use for the multi class
         # loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0),
-        # multi_class=True,
-        # label_smooth_eps=0
-        # use for the single class
-        loss_cls=dict(type='CrossEntropyLoss', loss_weight=1.0, class_weight=[1.,10.0]),
+        loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0, pos_weight=[9 for _ in range(11)]),
+        multi_class=True,
+        label_smooth_eps=0
         ),
     train_cfg=None,
     # train_cfg=dict(aux_info=['meta_label']),
     test_cfg=dict(average_clips=None))
 
 # dataset settings
-dataset_type = 'LmaframeDataset'
+dataset_type = 'LmaframeMultiLabelDataset'
 data_root = 'data/BOLD_public/mmextract'
 data_root_val = 'data/BOLD_public/mmextract'
 ann_file_train = 'data/BOLD_public/annotations/LMA_coding_cleaned_enlarge_train.csv'
@@ -140,6 +113,8 @@ data = dict(
         data_prefix=data_root,
         pipeline=train_pipeline,
         lma_annot_idx=set_lma_annot_idx,
+        multi_class=True,
+        num_classes=11,
         ),
     val=dict(
         type=dataset_type,
@@ -147,6 +122,8 @@ data = dict(
         data_prefix=data_root_val,
         pipeline=val_pipeline,
         lma_annot_idx=set_lma_annot_idx,
+        multi_class=True,
+        num_classes=11,
         ),
     test=dict(
         type=dataset_type,
@@ -154,32 +131,20 @@ data = dict(
         data_prefix=data_root_val,
         pipeline=test_pipeline,
         lma_annot_idx=set_lma_annot_idx,
+        multi_class=True,
+        num_classes=11,
         ))
-evaluation = dict(
-    interval=1, metrics=['top_k_accuracy', 'mean_class_accuracy'])
-
-# optimizer = dict(
-#     type='SGD',
-#     lr=0.001, # this lr is used for 1 gpus
-#     # lr=0.00125,  # this lr is used for 8 gpus
-#     momentum=0.9,
-#     weight_decay=0.0001)
+evaluation = dict(interval=1, metrics=['mean_average_precision', 'multi_class_AUC'])
 
 optimizer = dict(
-    type='Adam',
-    lr=5e-3,
-)
-# optimizer_config = dict(grad_clip=None)
-optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
-# learning policy
-lr_config = dict(
-    policy='step',
-    # warmup='linear',
-    # warmup_iters=500,
-    # warmup_ratio=0.001,
-    step=[60, 80])
+    type='SGD',
+    lr=0.001, # this lr is used for 1 gpus
+    # lr=0.00125,  # this lr is used for 8 gpus
+    momentum=0.9,
+    weight_decay=0.0001)
 
 # runtime settings
 checkpoint_config = dict(interval=10)
-work_dir = './work_dirs/hrnet_lma_rgb/'
+work_dir = './work_dirs/lma_predict/tsn_lma_rgb_multi_class_posweight/'
+lr_config = dict(policy='step', step=[40, 80])
 total_epochs = 100

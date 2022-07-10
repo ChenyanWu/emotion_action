@@ -113,7 +113,7 @@ data = dict(
         pipeline=test_pipeline,
         multi_class=True,
         num_classes=26))
-evaluation = dict(interval=1, metrics=['mean_average_precision'])
+evaluation = dict(interval=1, metrics=['mean_average_precision', 'multi_class_AUC'])
 
 optimizer = dict(
     type='SGD',

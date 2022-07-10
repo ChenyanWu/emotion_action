@@ -5,8 +5,12 @@ from mmcv import load
 import csv
 import numpy as np
 from scipy.special import softmax
+import math
 
-from mmaction.core.evaluation import (get_weighted_score, mean_class_accuracy,
+def sigmoid(x):
+  return 1 / (1 + math.exp(-x))
+
+from mmaction.core.evaluation import (get_weighted_score, mean_class_accuracy,confusion_matrix,
                                       top_k_accuracy, mean_average_precision, multi_class_AUC)
 
 def parse_args():
@@ -48,6 +52,7 @@ def main():
     csvreader = csv.reader(csvfile)
 
     labels = []
+
     task_list = ['bold', 'lma']
     task_type = task_list[1]
     # task_type = task_list[1]
@@ -75,11 +80,20 @@ def main():
     else:
         raise
 
-    mAP = mean_average_precision(weighted_scores, labels)
-    mAR = multi_class_AUC(weighted_scores, labels)
+    # emotion_idx=1
+    for emotion_idx in range(class_name):
+        single_class_score = [np.array([1 - sigmoid(weighted_score[emotion_idx]), 9 * sigmoid(weighted_score[emotion_idx])]) for weighted_score in weighted_scores]
+        # single_class_score = [np.array([-(weighted_score[emotion_idx]), (weighted_score[emotion_idx])]) for weighted_score in weighted_scores]
+        single_class_label = [label[emotion_idx] for label in labels]
 
-    print(f'Mean AP: {mAP:.04f}')
-    print(f'Mean AUC ROC: {mAR:.04f}')
+        mean_class_acc = mean_class_accuracy(single_class_score, single_class_label)
+        top_1_acc, top_5_acc = top_k_accuracy(single_class_score, single_class_label, (1, 5))
+        fusion_matrix = confusion_matrix(np.argmax(single_class_score, axis=1), single_class_label).astype(float)
+        print('***{}***'.format(emotion_idx))
+        print(f'Mean Class Accuracy: {mean_class_acc:.04f}')
+        print(f'Top 1 Accuracy: {top_1_acc:.04f}')
+        print(f'Top 5 Accuracy: {top_5_acc:.04f}')
+        print(fusion_matrix)
 
 if __name__ == '__main__':
     main()

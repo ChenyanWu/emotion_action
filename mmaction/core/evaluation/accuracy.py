@@ -202,6 +202,7 @@ def mean_average_precision(scores, labels):
     results = [x for x in results if not np.isnan(x)]
     if results == []:
         return np.nan
+    # print(results)
     return np.mean(results)
 
 
@@ -618,4 +619,5 @@ def multi_class_AUC(scores, labels):
     results = [x for x in results if not np.isnan(x)]
     if results == []:
         return np.nan
+    # print(results)
     return np.mean(results)

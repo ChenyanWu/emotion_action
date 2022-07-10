@@ -46,7 +46,7 @@ model = dict(
         ),
     cls_head=dict(
         type='TSNHead',
-        num_classes=2,
+        num_classes=11,
         in_channels=512,
         spatial_type='avg',
         consensus=dict(type='AvgConsensus', dim=1),
@@ -54,19 +54,20 @@ model = dict(
         dropout_ratio=0.3,
         # dropout_ratio=0.0,
         init_std=0.01,
+        # use for the single class
+        # loss_cls=dict(type='CrossEntropyLoss', loss_weight=1.0, class_weight=[1.,10.0]),
         # use for the multi class
         # loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0),
-        # multi_class=True,
-        # label_smooth_eps=0
-        # use for the single class
-        loss_cls=dict(type='CrossEntropyLoss', loss_weight=1.0, class_weight=[1.,10.0]),
+        loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0, pos_weight=[9 for _ in range(11)]),
+        multi_class=True,
+        label_smooth_eps=0
         ),
     train_cfg=None,
     # train_cfg=dict(aux_info=['meta_label']),
     test_cfg=dict(average_clips=None))
 
 # dataset settings
-dataset_type = 'LmaframeDataset'
+dataset_type = 'LmaframeMultiLabelDataset'
 data_root = 'data/BOLD_public/mmextract'
 data_root_val = 'data/BOLD_public/mmextract'
 ann_file_train = 'data/BOLD_public/annotations/LMA_coding_cleaned_enlarge_train.csv'
@@ -140,6 +141,8 @@ data = dict(
         data_prefix=data_root,
         pipeline=train_pipeline,
         lma_annot_idx=set_lma_annot_idx,
+        multi_class=True,
+        num_classes=11,
         ),
     val=dict(
         type=dataset_type,
@@ -147,6 +150,8 @@ data = dict(
         data_prefix=data_root_val,
         pipeline=val_pipeline,
         lma_annot_idx=set_lma_annot_idx,
+        multi_class=True,
+        num_classes=11,
         ),
     test=dict(
         type=dataset_type,
@@ -154,9 +159,10 @@ data = dict(
         data_prefix=data_root_val,
         pipeline=test_pipeline,
         lma_annot_idx=set_lma_annot_idx,
+        multi_class=True,
+        num_classes=11,
         ))
-evaluation = dict(
-    interval=1, metrics=['top_k_accuracy', 'mean_class_accuracy'])
+evaluation = dict(interval=1, metrics=['mean_average_precision', 'multi_class_AUC'])
 
 # optimizer = dict(
 #     type='SGD',
@@ -177,9 +183,9 @@ lr_config = dict(
     # warmup='linear',
     # warmup_iters=500,
     # warmup_ratio=0.001,
-    step=[60, 80])
+    step=[40, 80])
 
 # runtime settings
 checkpoint_config = dict(interval=10)
-work_dir = './work_dirs/hrnet_lma_rgb/'
+work_dir = './work_dirs/lma_predict/hrnet_lma_rgb_multilabel/'
 total_epochs = 100

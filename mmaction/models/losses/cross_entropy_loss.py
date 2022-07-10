@@ -96,11 +96,14 @@ class BCELossWithLogits(BaseWeightedLoss):
             using other losses). Default: None.
     """
 
-    def __init__(self, loss_weight=1.0, class_weight=None):
+    def __init__(self, loss_weight=1.0, class_weight=None, pos_weight=None):
         super().__init__(loss_weight=loss_weight)
         self.class_weight = None
         if class_weight is not None:
             self.class_weight = torch.Tensor(class_weight)
+        self.pos_weight = None
+        if pos_weight is not None:
+            self.pos_weight = torch.Tensor(pos_weight)
 
     def _forward(self, cls_score, label, **kwargs):
         """Forward function.
@@ -117,8 +120,9 @@ class BCELossWithLogits(BaseWeightedLoss):
         if self.class_weight is not None:
             assert 'weight' not in kwargs, "The key 'weight' already exists."
             kwargs['weight'] = self.class_weight.to(cls_score.device)
-        loss_cls = F.binary_cross_entropy_with_logits(cls_score, label,
-                                                      **kwargs)
+        if self.pos_weight is not None:
+            kwargs['pos_weight'] = self.pos_weight.to(cls_score.device)
+        loss_cls = F.binary_cross_entropy_with_logits(cls_score, label, **kwargs)
         return loss_cls
 
 

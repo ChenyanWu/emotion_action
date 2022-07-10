@@ -20,10 +20,11 @@ from .lmaframe_dataset import LmaframeDataset
 from .rawvideo_dataset import RawVideoDataset
 from .ssn_dataset import SSNDataset
 from .video_dataset import VideoDataset
+from .lmaframe_multilabel_dataset import LmaframeMultiLabelDataset
 
 __all__ = [
     'VideoDataset', 'build_dataloader', 'build_dataset', 'RepeatDataset',
-    'RawframeDataset', 'BoldframeDataset', 'LmavideoDataset', 'LmaframeDataset', 'BaseDataset', 'ActivityNetDataset', 'SSNDataset',
+    'RawframeDataset', 'BoldframeDataset', 'LmavideoDataset', 'LmaframeDataset', 'LmaframeMultiLabelDataset' 'BaseDataset', 'ActivityNetDataset', 'SSNDataset',
     'HVUDataset', 'AudioDataset', 'AudioFeatureDataset', 'ImageDataset',
     'RawVideoDataset', 'AVADataset', 'AudioVisualDataset',
     'BaseMiniBatchBlending', 'CutmixBlending', 'MixupBlending', 'DATASETS',
