@@ -69,7 +69,7 @@ val_pipeline = [
 ]
 test_pipeline = [
     dict(
-        type='UniformSampleFrames', clip_len=set_clip_len, num_clips=10, test_mode=True),
+        type='UniformSampleFrames', clip_len=set_clip_len, num_clips=1, test_mode=True),
     dict(type='PoseDecode'),
     dict(type='PoseCompact', hw_ratio=1., allow_imgpad=True),
     dict(type='Resize', scale=(-1, 56)),
@@ -82,7 +82,8 @@ test_pipeline = [
         with_limb=False,
         double=True,
         left_kp=left_kp,
-        right_kp=right_kp),
+        right_kp=right_kp
+        ),
     dict(type='FormatShape', input_format='NCTHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['imgs'])
