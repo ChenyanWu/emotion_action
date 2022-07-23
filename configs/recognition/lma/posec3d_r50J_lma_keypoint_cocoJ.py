@@ -23,7 +23,7 @@ model = dict(
         dropout_ratio=0.5,
         loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0, pos_weight=[9 for _ in range(11)]),
         multi_class=True,
-        label_smooth_eps=0,
+        label_smooth_eps=0.01,
         ),
     train_cfg=dict(),
     test_cfg=dict(average_clips='prob'))
@@ -134,7 +134,7 @@ log_config = dict(
     ])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/lma_predict/posec3d_lma_pretrained_cocoJ'  # noqa: E501
+work_dir = './work_dirs/lma_predict/posec3d_lma/frame48_pretrained_cocoJ'  # noqa: E501
 load_from = 'https://download.openmmlab.com/mmaction/skeleton/posec3d/k400_posec3d-041f49c6.pth'  # noqa: E501
 resume_from = None
 find_unused_parameters = True

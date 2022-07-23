@@ -32,7 +32,7 @@ dataset_type = 'PoseDataset'
 ann_file = 'data/BOLD_public/annotations/lma_cocoJ.pkl'
 left_kp = [1, 3, 5, 7, 9, 11, 13, 15]
 right_kp = [2, 4, 6, 8, 10, 12, 14, 16]
-set_clip_len = 72
+set_clip_len = 96
 train_pipeline = [
     dict(type='UniformSampleFrames', clip_len=set_clip_len),
     dict(type='PoseDecode'),
@@ -134,7 +134,7 @@ log_config = dict(
     ])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/lma_predict/posec3d_lma/frame72_pretrained_cocoJ'  # noqa: E501
+work_dir = './work_dirs/lma_predict/posec3d_lma/frame_96_pretrained_cocoJ'  # noqa: E501
 load_from = 'https://download.openmmlab.com/mmaction/skeleton/posec3d/k400_posec3d-041f49c6.pth'  # noqa: E501
 resume_from = None
 find_unused_parameters = True

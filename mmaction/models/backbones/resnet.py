@@ -332,7 +332,7 @@ class ResNet(nn.Module):
     }
 
     def __init__(self,
-                 depth,
+                 depth,   
                  pretrained=None,
                  torchvision_pretrain=True,
                  in_channels=3,

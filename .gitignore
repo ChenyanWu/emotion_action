@@ -143,3 +143,4 @@ tools/lma/*.mp4
 tools/lma/plot_joints_folder/*
 tools/lma/plot_joints_all_people_folder/*
 tools/lma/*.csv
+slurm*.out

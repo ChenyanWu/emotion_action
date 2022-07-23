@@ -12,7 +12,7 @@ from mmcv.utils import print_log
 from torch.utils.data import Dataset
 
 from ..core import (mean_average_precision, mean_class_accuracy,
-                    mmit_mean_average_precision, top_k_accuracy, multi_class_AUC)
+                    mmit_mean_average_precision, top_k_accuracy, multi_class_AUC, multi_class_f1_score)
 from .pipelines import Compose
 
 
@@ -179,7 +179,7 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
         metrics = metrics if isinstance(metrics, (list, tuple)) else [metrics]
         allowed_metrics = [
             'top_k_accuracy', 'mean_class_accuracy', 'mean_average_precision',
-            'mmit_mean_average_precision', 'multi_class_AUC'
+            'mmit_mean_average_precision', 'multi_class_AUC', 'multi_class_f1_score'
         ]
 
         for metric in metrics:
@@ -222,7 +222,7 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
                 continue
 
             if metric in [
-                    'mean_average_precision', 'mmit_mean_average_precision', 'multi_class_AUC'
+                    'mean_average_precision', 'mmit_mean_average_precision', 'multi_class_AUC', 'multi_class_f1_score'
             ]:
                 gt_labels_arrays = [
                     self.label2array(self.num_classes, label)
@@ -241,6 +241,10 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
                     auc_roc = multi_class_AUC(results, gt_labels_arrays)
                     eval_results['auc_roc'] = auc_roc
                     log_msg = f'\nauc_roc\t{auc_roc:.4f}'
+                elif metric == 'multi_class_f1_score':
+                    f1_score = multi_class_f1_score(results, gt_labels_arrays)
+                    eval_results['fl_score'] = f1_score
+                    log_msg = f'\nf1_score\t{f1_score:.4f}'
                 print_log(log_msg, logger=logger)
                 continue
 

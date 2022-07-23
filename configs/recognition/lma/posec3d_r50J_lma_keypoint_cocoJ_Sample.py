@@ -23,7 +23,7 @@ model = dict(
         dropout_ratio=0.5,
         loss_cls=dict(type='BCELossWithLogits', loss_weight=1.0, pos_weight=[9 for _ in range(11)]),
         multi_class=True,
-        label_smooth_eps=0.01,
+        label_smooth_eps=0,
         ),
     train_cfg=dict(),
     test_cfg=dict(average_clips='prob'))
@@ -32,9 +32,11 @@ dataset_type = 'PoseDataset'
 ann_file = 'data/BOLD_public/annotations/lma_cocoJ.pkl'
 left_kp = [1, 3, 5, 7, 9, 11, 13, 15]
 right_kp = [2, 4, 6, 8, 10, 12, 14, 16]
-set_clip_len = 72
+set_clip_len = 48
+set_frame_interval = 4
 train_pipeline = [
-    dict(type='UniformSampleFrames', clip_len=set_clip_len),
+    # dict(type='UniformSampleFrames', clip_len=set_clip_len),
+    dict(type='SampleFrames', clip_len=set_clip_len, frame_interval=set_frame_interval, num_clips=1),
     dict(type='PoseDecode'),
     dict(type='PoseCompact', hw_ratio=1., allow_imgpad=True),
     dict(type='Resize', scale=(-1, 64)),
@@ -52,7 +54,8 @@ train_pipeline = [
     dict(type='ToTensor', keys=['imgs', 'label'])
 ]
 val_pipeline = [
-    dict(type='UniformSampleFrames', clip_len=set_clip_len, num_clips=1, test_mode=True),
+    # dict(type='UniformSampleFrames', clip_len=set_clip_len, num_clips=1, test_mode=True),
+    dict(type='SampleFrames', clip_len=set_clip_len, frame_interval=set_frame_interval, num_clips=1, test_mode=True),
     dict(type='PoseDecode'),
     dict(type='PoseCompact', hw_ratio=1., allow_imgpad=True),
     dict(type='Resize', scale=(-1, 56)),
@@ -68,8 +71,9 @@ val_pipeline = [
     dict(type='ToTensor', keys=['imgs'])
 ]
 test_pipeline = [
-    dict(
-        type='UniformSampleFrames', clip_len=set_clip_len, num_clips=10, test_mode=True),
+    # dict(
+    #     type='UniformSampleFrames', clip_len=set_clip_len, num_clips=10, test_mode=True),
+    dict(type='SampleFrames', clip_len=set_clip_len, frame_interval=set_frame_interval, num_clips=10, test_mode=True),
     dict(type='PoseDecode'),
     dict(type='PoseCompact', hw_ratio=1., allow_imgpad=True),
     dict(type='Resize', scale=(-1, 56)),
@@ -134,7 +138,7 @@ log_config = dict(
     ])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/lma_predict/posec3d_lma/frame72_pretrained_cocoJ'  # noqa: E501
+work_dir = './work_dirs/lma_predict/posec3d_lma_pretrained_cocoJ'  # noqa: E501
 load_from = 'https://download.openmmlab.com/mmaction/skeleton/posec3d/k400_posec3d-041f49c6.pth'  # noqa: E501
 resume_from = None
 find_unused_parameters = True

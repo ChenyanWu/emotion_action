@@ -1,7 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import re
 import numpy as np
-from sklearn.metrics import average_precision_score, roc_auc_score
+from sklearn.metrics import average_precision_score, roc_auc_score, f1_score
 
 
 def confusion_matrix(y_pred, y_real, normalize=None):
@@ -621,3 +621,6 @@ def multi_class_AUC(scores, labels):
         return np.nan
     # print(results)
     return np.mean(results)
+
+def multi_class_f1_score(scores, labels):
+    return f1_score(labels, scores, average='macro')
